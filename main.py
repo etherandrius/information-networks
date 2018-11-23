@@ -8,10 +8,11 @@ from matplotlib import pyplot as plt
 
 
 def main():
-    train = [train_the_model_get_weights(1) for i in range(10)]
+    train = [train_the_model_get_distribution(1) for i in range(10)]
 
-
-def train_the_model_get_weights(random=42):
+# trains the model and records value of the activated percpetron for every layer for every test element in x_test,
+# so returns an array of [test_case][layer][perceptron value]
+def train_the_model_get_distribution(random=42):
     # Load pre-shuffled MNIST data into train and test sets
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x_train = x_train.reshape(x_train.shape[0], 28*28)
