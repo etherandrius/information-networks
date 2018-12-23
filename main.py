@@ -1,42 +1,71 @@
-import tensorflow as tf
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
-from tensorflow.keras import Sequential
-from tensorflow.keras.datasets import mnist
+from util import load_data
+import tensorflow.keras as keras
 from tensorflow.keras import backend as K
-from sklearn.model_selection import train_test_split
-from matplotlib import pyplot as plt
+import networks.networks as networks
+import information.information as information
+import matplotlib.pyplot as plt
+import itertools
+
+class EveryEpoch(keras.callbacks.Callback):
+    def __init__(self, model, x_test):
+        self.activations = []
+        outputs = [layer.output for layer in model.layers] + [model.output]
+        self.__functor = K.function([model.input, K.learning_phase()], outputs)
+        self.__x_test = x_test
+
+    def on_train_begin(self, logs=None):
+        self.activations = []  # epoch*layers*test_case*neuron -> value)
+
+    def on_batch_end(self, batch, logs=None):
+        self.activations.append(self.__functor([self.__x_test, 0.]))
 
 
 def main():
-    train = [train_the_model_get_distribution(1) for i in range(10)]
+    data = load_data()
+    model = networks.get_model_categorical(input_shape=data.data[0].shape)
+    # train = [train_the_model_get_distribution(1) for i in range(2)]  # itt*test_case*layer -> perceptron value
+    train, test = data.split()
+    print(len(train.data))
 
-# trains the model and records value of the activated percpetron for every layer for every test element in x_test,
-# so returns an array of [test_case][layer][perceptron value]
-def train_the_model_get_distribution(random=42):
-    # Load pre-shuffled MNIST data into train and test sets
-    (x_train, y_train), (x_test, y_test) = mnist.load_data()
-    x_train = x_train.reshape(x_train.shape[0], 28*28)
-    x_test = x_test.reshape(x_test.shape[0], 28*28)
-    x_train = x_train.astype('float32') / 255
-    x_test = x_test.astype('float32') / 255
+    layers_out = []
 
-    y_train = tf.keras.utils.to_categorical(y_train)
-    y_test = tf.keras.utils.to_categorical(y_test)
+    x_test, y_test = test.data, test.labels
 
-    model = Sequential()
-    model.add(Dense(16, activation='relu', input_shape=x_train[0].shape))
-    model.add(Dense(14, activation='relu'))
-    model.add(Dense(10, activation='softmax'))
+    x_train, y_train = train.data, train.labels
+    every_epoch = EveryEpoch(model, test.data)
+    model.fit(x_train, y_train,
+              batch_size=512,
+              callbacks=[every_epoch],
+              epochs=1,
+              validation_data=(x_test, y_test),
+              verbose=1)
 
-    model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+    activations = every_epoch.activations  # epoch*layers*test_case*neuron -> value)
 
-    model.fit(x_train, y_train, batch_size=128, epochs=1, validation_data=(x_test, y_test), verbose=1)
+    activations = activations[:1]
 
-    outputs = [layer.output for layer in model.layers]
-    functor = K.function([model.input, K.learning_phase()], outputs)
+    i_x_t, i_y_t = zip(*[information.calculate_information(i, x_test, y_test) for i in activations])
+    plot(i_x_t, i_y_t)
+    return
 
-    layer_outs = functor([x_test, 0.])
-    return layer_outs
+def pairwise(itt):
+    a, b = itertools.tee(itt)
+    next(b, None)
+    return zip(a, b)
+
+
+def plot(data_x, data_y):
+    for ex, ey in zip(data_x, data_y):
+        for e in pairwise(zip(ex, ey)):
+            print(e)
+            (x1, y1), (x2, y2) = e
+            plt.plot(x1, x2, y1, y2)
+            #plt.plot(e)
+
+    plt.scatter(data_x, data_y)
+    plt.xlabel('I(X,T)')
+    plt.ylabel('I(Y,T)')
+    plt.show()
 
 
 if __name__ == '__main__':
