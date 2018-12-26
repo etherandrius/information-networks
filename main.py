@@ -31,7 +31,7 @@ class EveryEpoch(keras.callbacks.Callback):
 
 def parameters():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--train_size'
+    parser.add_argument('--train_size',
                         '-ts', dest='train_size', default=0.8,
                         type=float, help='Training size')
 
@@ -40,15 +40,20 @@ def parameters():
                         type=int)
 
     parser.add_argument('--information_batch_number',
-                        '-bn', dest='batch_number', default=10,
+                        '-bn', dest='batch_number', default=30,
                         type=int, help='Number of batches to be used for information calculation')
     parser.add_argument('--num_of_epochs',
-                        '-e', dest='epochs', default=500,
+                        '-e', dest='epochs', default=1500,
                         type=int, help='Number of times to scan the dataset for NN training')
     parser.add_argument('--skip',
                         '-s', dest='skip', default=1,
                         type=int, help="Calculate information for every n'th mini-batch epoch")
+    parser.add_argument('--network_shape',
+                        '-ns', dest='shape', default="12,10,8,6,4,2,1",
+                        help='Shape of the DNN')
+
     args = parser.parse_args()
+    args.shape = list(map(int, args.shape.split(',')))
     return args
 
 
@@ -59,9 +64,10 @@ def main():
     batch_size = args.batch_size
     epochs = args.epochs
     skip = args.skip
+    shape = args.shape
 
     data = load_data()
-    model = networks.get_model_categorical(input_shape=data.data[0].shape)
+    model = networks.get_model_categorical(input_shape=data.data[0].shape, network_shape=shape)
     train, test = data.split(train_size)
 
     x_test, y_test = test.data, test.labels
@@ -83,10 +89,12 @@ def main():
             (delayed(information.calculate_information)(i, x_test, y_test) for i in activations))
 
     filename = "output/"
-    filename += "train_size-" + "{0:.0%}".format(train_size) + "_"
-    filename += "batch_size-" + str(batch_size) + "_"
-    filename += "epochs-" + str(epochs) + "_"
-    filename += "mini_batches-" + str(every_epoch.batch) + "_"
+    filename += "train_size-" + "{0:.0%}".format(train_size) + ","
+    filename += "batch_size-" + str(batch_size) + ","
+    filename += "epochs-" + str(epochs) + ","
+    filename += "mini_batches-" + str(every_epoch.batch) + ","
+    filename += "skip-" + str(skip) + ","
+    filename += "shape-" + str(shape)
     plot(i_x_t, i_y_t, show=False, filename=filename)
     return
 

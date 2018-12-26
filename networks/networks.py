@@ -3,14 +3,12 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dens
 from tensorflow.keras import Sequential
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras import backend as K
-from sklearn.model_selection import train_test_split
-from matplotlib import pyplot as plt
 
 
-def get_model_categorical(input_shape, layer_sizes=[10, 7, 5, 4, 3], categories=2, activation='tanh'):
+def get_model_categorical(input_shape, network_shape=[10, 7, 5, 4, 3], categories=2, activation='tanh'):
     model = Sequential()
-    model.add(Dense(layer_sizes[0], activation=activation, input_shape=input_shape))
-    for lsize in layer_sizes[1:]:
+    model.add(Dense(network_shape[0], activation=activation, input_shape=input_shape))
+    for lsize in network_shape[1:]:
         model.add(Dense(lsize, activation=activation))
     model.add(Dense(categories, activation='softmax'))
 
