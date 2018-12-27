@@ -10,6 +10,7 @@ import numpy as np
 import itertools
 import argparse
 import multiprocessing
+from tqdm import tqdm
 
 
 class EveryEpoch(keras.callbacks.Callback):
@@ -72,6 +73,8 @@ def main():
 
     x_test, y_test = test.data, test.labels
 
+
+    print("Training")
     x_train, y_train = train.data, train.labels
     every_epoch = EveryEpoch(model, test.data)
     model.fit(x_train, y_train,
@@ -84,10 +87,15 @@ def main():
     activations = every_epoch.activations  # epoch*layers*test_case*neuron -> value)
     activations = activations[::skip]
 
-    i_x_t, i_y_t = zip(*
-        Parallel(n_jobs=multiprocessing.cpu_count())
-            (delayed(information.calculate_information)(i, x_test, y_test) for i in activations))
+    print("Batches : ", every_epoch.batch)
 
+    print("Calculating Information")
+    i_x_t, i_y_t = zip(*
+        #Parallel(n_jobs=multiprocessing.cpu_count())
+        Parallel(n_jobs=2)
+            (delayed(information.calculate_information)(i, x_test, y_test) for i in tqdm(activations)))
+
+    print("Producing image")
     filename = "output/"
     filename += "train_size-" + "{0:.0%}".format(train_size) + ","
     filename += "batch_size-" + str(batch_size) + ","
