@@ -10,6 +10,7 @@ import numpy as np
 import itertools
 import argparse
 import multiprocessing
+from timeit import timeit
 from tqdm import tqdm
 
 
@@ -53,6 +54,10 @@ def parameters():
                         '-ns', dest='shape', default="12,10,8,6,4,2,1",
                         help='Shape of the DNN')
 
+    parser.add_argument('--cores',
+                        '-c', dest='cores', default=multiprocessing.cpu_count(),
+                        type=int, help='How many cores to use for computation defaults to number of cores on the machine')
+
     args = parser.parse_args()
     args.shape = list(map(int, args.shape.split(',')))
     return args
@@ -66,6 +71,7 @@ def main():
     epochs = args.epochs
     skip = args.skip
     shape = args.shape
+    cores = args.cores
 
     data = load_data()
     model = networks.get_model_categorical(input_shape=data.data[0].shape, network_shape=shape)
@@ -91,8 +97,7 @@ def main():
 
     print("Calculating Information")
     i_x_t, i_y_t = zip(*
-        #Parallel(n_jobs=multiprocessing.cpu_count())
-        Parallel(n_jobs=2)
+        Parallel(n_jobs=cores)
             (delayed(information.calculate_information)(i, x_test, y_test) for i in tqdm(activations)))
 
     print("Producing image")
@@ -104,6 +109,8 @@ def main():
     filename += "skip-" + str(skip) + ","
     filename += "shape-" + str(shape)
     plot(i_x_t, i_y_t, show=False, filename=filename)
+
+    print("Done")
     return
 
 
@@ -116,7 +123,7 @@ def pairwise(itt):
 def plot(data_x, data_y, show=False, filename=None):
     cmap = plt.get_cmap('gnuplot')
     colors = [cmap(i) for i in np.linspace(0, 1, len(data_x))]
-    for ix, (ex, ey) in enumerate(zip(data_x, data_y)):
+    for ix, (ex, ey) in tqdm(enumerate(zip(data_x, data_y))):
         for e in pairwise(zip(ex, ey)):
             (x1, y1), (x2, y2) = e
             plt.plot((x1, x2), (y1, y2), color=colors[ix], alpha=0.9, linewidth=0.2, zorder=ix)
@@ -128,7 +135,9 @@ def plot(data_x, data_y, show=False, filename=None):
     plt.ylabel('I(Y,T)')
 
     if filename is not None:
-        plt.savefig(filename, dpi=1000)
+        print("Saving image to file : ", filename)
+        time = timeit(plt.savefig(filename, dpi=1000))
+        print("Time taken to save to file : ", time)
     if show:
         plt.show()
 
