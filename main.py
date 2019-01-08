@@ -1,7 +1,8 @@
 import networks.networks as networks
 import information.information as information
 import matplotlib.pyplot as plt
-import time
+import time, numpy
+import _pickle as cPickle
 from tqdm import tqdm
 from util import *
 from information.util import CalculateInformationCallback
@@ -30,20 +31,9 @@ def main():
               validation_data=(x_test, y_test),
               verbose=1)
 
-    print("Batches : ", information_callback.batch)
-
-    #new
     i_x_t, i_y_t = zip(*information_callback.mi)
 
-    #print("Calculating Information")
-    # i_x_t, i_y_t = zip(*
-    #     Parallel(n_jobs=cores)
-    #         (delayed(information.calculate_information)(i, x_test, y_test) for i in tqdm(activations)))
-
-
-    print("Producing image")
-    filename = "output/"
-    filename += "train_size-" + "{0:.0%}".format(train_size) + ","
+    filename = "train_size-" + "{0:.0%}".format(train_size) + ","
     filename += "batch_size-" + str(batch_size) + ","
     filename += "epochs-" + str(epochs) + ","
     filename += "mini_batches-" + str(information_callback.batch) + ","
@@ -52,7 +42,11 @@ def main():
     if data_set == 'MNIST':
         filename += "_mnist"
 
-    plot(i_x_t, i_y_t, show=False, filename=filename)
+    print("Saving data to file : ", filename)
+    cPickle.dump(information_callback.mi, open("output/data/" + filename, 'wb'))
+
+    print("Producing image")
+    plot(i_x_t, i_y_t, show=False, filename="output/images/" + filename)
 
     print("Done")
     return

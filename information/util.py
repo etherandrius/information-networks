@@ -41,6 +41,6 @@ class CalculateInformationCallback(keras.callbacks.Callback):
         self.batch += 1
 
     def on_train_end(self, logs=None):
-        print("Shutdown")
+        print("Waiting on mutual information computations...")
         self.__thread_executor.shutdown()
-        print("Shutdown")
+        print("Mutual Information calculated")

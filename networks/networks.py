@@ -6,6 +6,7 @@ from tensorflow.keras import backend as K
 
 
 def get_model_categorical(input_shape, network_shape=[10, 7, 5, 4, 3], categories=2, activation='tanh'):
+    tf.logging.set_verbosity(tf.logging.ERROR)  # ignores warning caused by callbacks being expensive
     model = Sequential()
     model.add(Dense(network_shape[0], activation=activation, input_shape=input_shape))
     for lsize in network_shape[1:]:
