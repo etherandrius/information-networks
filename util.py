@@ -2,9 +2,12 @@ import numpy as np
 import os
 import sys
 import scipy.io as sio
+import tensorflow as tf
+import argparse
+import itertools
+import multiprocessing
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.datasets import mnist
-import tensorflow as tf
 
 
 class DataSet(object):
@@ -21,6 +24,45 @@ class DataSet(object):
         train = DataSet(x_train, y_train)
         test = DataSet(x_test, y_test)
         return train, test
+
+
+def parameters():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--data_set',
+                        '-ds', dest='data_set', default='default',
+                        help='choose a data set, available: [default, MNIST], default - data set used by Tishby in the original paper')
+
+    parser.add_argument('--train_size',
+                        '-ts', dest='train_size', default=0.8,
+                        type=float, help='Training size')
+
+    parser.add_argument('--batch_size',
+                        '-bs', dest='batch_size', default=512,
+                        type=int)
+
+    parser.add_argument('--information_batch_number',
+                        '-bn', dest='batch_number', default=30,
+                        type=int, help='Number of batches to be used for information calculation')
+
+    parser.add_argument('--num_of_epochs',
+                        '-e', dest='epochs', default=1500,
+                        type=int, help='Number of times to scan the dataset for NN training')
+
+    parser.add_argument('--skip',
+                        '-s', dest='skip', default=1,
+                        type=int, help="Calculate information for every n'th mini-batch epoch")
+
+    parser.add_argument('--network_shape',
+                        '-ns', dest='shape', default="12,10,8,6,4,2,1",
+                        help='Shape of the DNN')
+
+    parser.add_argument('--cores',
+                        '-c', dest='cores', default=multiprocessing.cpu_count(),
+                        type=int, help='How many cores to use for mutual information computation defaults to number of cores on the machine')
+
+    args = parser.parse_args()
+    args.shape = list(map(int, args.shape.split(',')))
+    return args
 
 
 def load_data(data_set, train_size):
@@ -45,6 +87,7 @@ def load_data(data_set, train_size):
         return (x_train, y_train), (x_test, y_test), 2
 
 
-
-
-
+def pairwise(itt):
+    a, b = itertools.tee(itt)
+    next(b, None)
+    return zip(a, b)

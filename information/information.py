@@ -1,4 +1,5 @@
 import numpy as np
+from information.util import binarize
 
 
 def get_probabilities(data):
@@ -7,14 +8,6 @@ def get_probabilities(data):
     prob = unique_counts / np.sum(unique_counts)
 
     return prob, unique_inverse
-
-
-def binarize(data):
-    if len(data.shape) < 2:
-        return data
-    return np \
-        .ascontiguousarray(data) \
-        .view(np.dtype((np.void, data.dtype.itemsize * data.shape[1])))
 
 
 # low=inclusive, high=exclusive
