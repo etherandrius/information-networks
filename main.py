@@ -1,8 +1,8 @@
-import networks.networks as networks
 import information.information as information
+import networks.networks as networks
 import matplotlib.pyplot as plt
-import time, numpy
-import _pickle as cPickle
+import _pickle
+import time
 from tqdm import tqdm
 from util import *
 from information.util import CalculateInformationCallback
@@ -43,7 +43,7 @@ def main():
         filename += "_mnist"
 
     print("Saving data to file : ", filename)
-    cPickle.dump(information_callback.mi, open("output/data/" + filename, 'wb'))
+    _pickle.dump(information_callback.mi, open("output/data/" + filename, 'wb'))
 
     print("Producing image")
     plot(i_x_t, i_y_t, show=False, filename="output/images/" + filename)
@@ -56,10 +56,7 @@ def plot(data_x, data_y, show=False, filename=None):
     cmap = plt.get_cmap('gnuplot')
     colors = [cmap(i) for i in np.linspace(0, 1, len(data_x))]
     for ix in tqdm(range(len(data_x))):
-    #for ix, (ex, ey) in tqdm(enumerate(zip(data_x, data_y))):
-        ex = data_x[ix]
-        ey = data_y[ix]
-        for e in pairwise(zip(ex, ey)):
+        for e in pairwise(zip(data_x[ix], data_y[ix])):
             (x1, y1), (x2, y2) = e
             plt.plot((x1, x2), (y1, y2), color=colors[ix], alpha=0.9, linewidth=0.2, zorder=ix)
             point_size = 300
