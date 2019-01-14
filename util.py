@@ -60,6 +60,14 @@ def parameters():
                         '-c', dest='cores', default=multiprocessing.cpu_count(),
                         type=int, help='How many cores to use for mutual information computation defaults to number of cores on the machine')
 
+    parser.add_argument('--mi_estimator',
+                        '-mie', dest='mi_estimator', default="bins",
+                        help="Choose what mutual information estimator to use available: [bins, KDE, KL, LNN_1, LNN_2], "
+                             "bins - method used by Tishby in his paper, "
+                             "KDE - Kernel density estimator, "
+                             "KL - Kozachenko-Leonenko estimator, "
+                             "LNN_1, LNN_2 - Local nearest neighbour with order 1 or 2")
+
     args = parser.parse_args()
     args.shape = list(map(int, args.shape.split(',')))
     return args

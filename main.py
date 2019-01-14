@@ -7,20 +7,6 @@ from tqdm import tqdm
 from util import *
 from information.util import CalculateInformationCallback
 
-import lnn.lnn as lnn
-
-#mean = [10, 0]
-#L = np.matrix([[0.5], [0.7]])
-##cov = np.matrix([[1, 0], [0, 1]])
-#print(L)
-#cov = L * np.transpose(L)
-#print(cov)
-#x, y = np.random.multivariate_normal(mean, cov, 5000).T
-#
-#plt.plot(x, y)
-#plt.axis('equal')
-#plt.show()
-
 
 def main():
     args = parameters()
@@ -31,15 +17,18 @@ def main():
     shape = args.shape
     cores = args.cores
     data_set = args.data_set
+    mi_estimator = args.mi_estimator
 
     (x_train, y_train), (x_test, y_test), categories = load_data(data_set, train_size)
     model = networks.get_model_categorical(input_shape=x_train[0].shape, network_shape=shape, categories=categories)
 
     print("Training")
-    information_callback = CalculateInformationCallback(
-        model, information.calculate_information(x_test, y_test), x_test, skip, cores)
-    #information_callback = CalculateInformationCallback(
-    #    model, information.calculate_information_lnn(x_test, y_test), x_test, skip, cores)
+    if mi_estimator == "bins":
+        information_callback = CalculateInformationCallback(
+            model, information.calculate_information(x_test, y_test), x_test, skip, cores)
+    else:
+        information_callback = CalculateInformationCallback(
+            model, information.calculate_information_lnn(x_test, y_test, mi_estimator), x_test, skip, cores)
     model.fit(x_train, y_train,
               batch_size=batch_size,
               callbacks=[information_callback],
@@ -49,12 +38,13 @@ def main():
 
     i_x_t, i_y_t = zip(*information_callback.mi)
 
-    filename = "train_size-" + "{0:.0%}".format(train_size) + ","
-    filename += "batch_size-" + str(batch_size) + ","
-    filename += "epochs-" + str(epochs) + ","
+    filename = "ts-" + "{0:.0%}".format(train_size) + ","
+    filename += "mie-" + mi_estimator + ","
+    filename += "bs-" + str(batch_size) + ","
+    filename += "e-" + str(epochs) + ","
     filename += "mini_batches-" + str(information_callback.batch) + ","
-    filename += "skip-" + str(skip) + ","
-    filename += "shape-" + str(shape)
+    filename += "s-" + str(skip) + ","
+    filename += "ns-" + str(shape)
     if data_set == 'MNIST':
         filename += "_mnist"
 

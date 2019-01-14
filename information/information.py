@@ -60,16 +60,23 @@ def calculate_information_data(data_x, data_y):
     return mutual_information
 
 
-def calculate_information_lnn(input_values, labels):
-
+def calculate_information_lnn(input_values, labels, entropy):
     data_x = input_values
     data_y = labels
 
-    noise = lambda: np.random.normal(0, 0.7, 1)[0] # 0.7 ~= sqrt(0.5)
+    def noise():
+        np.random.normal(0, 0.7, 1)[0] # 0.7 ~= sqrt(0.5)
     data_x = add_noise(input_values, noise)
     data_y = add_noise(labels, noise)
 
-    entropy = lnn.KL_entropy
+    if entropy == "KL":
+        entropy = lnn.KL_entropy
+    elif entropy == "KDE":
+        entropy = lnn.KDE_entropy
+    elif entropy == "LNN_2":
+        entropy = lnn.LNN_2_entropy
+    elif entropy == "LNN_1":
+        entropy = lnn.LNN_1_entropy
 
     e_y = entropy(data_y)
     e_x = entropy(data_x)
