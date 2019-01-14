@@ -13,15 +13,30 @@ def binarize(data):
         .view(np.dtype((np.void, data.dtype.itemsize * data.shape[1])))
 
 
+# addding noise is necessary to prevent infinite MI (i.e prevents division by zero for some MI estimators)
+def add_noise(data, noise_function):
+    result = []
+    for n in data:
+        if isinstance(n, np.ndarray) or isinstance(n, list):
+            new_n = add_noise(n, noise_function)
+        else:
+            new_n = __add_noise_value(n, noise_function)
+        result.append(new_n)
+    return np.array(result)
+
+
+def __add_noise_value(n, noise_function):
+    return n + noise_function()
+
+
 class CalculateInformationCallback(keras.callbacks.Callback):
 
-    def __init__(self, model, calc_information_func, x_test, y_test, skip, max_workers):
+    def __init__(self, model, calc_information_func, x_test, skip, max_workers):
         super().__init__()
         self.mi = []
         outputs = [layer.output for layer in model.layers]
         self.__functor = K.function([model.input, K.learning_phase()], outputs)
         self.__x_test = x_test
-        self.__y_test = y_test
         self.__calc_information_func = calc_information_func
         self.__skip = skip
         self.__thread_executor = BlockingThreadPoolExecutor(max_workers=max_workers)
@@ -29,7 +44,7 @@ class CalculateInformationCallback(keras.callbacks.Callback):
         self.batch = 0
 
     def __consume(self, out):
-        mutual_information = self.__calc_information_func(out, self.__x_test, self.__y_test)
+        mutual_information = self.__calc_information_func(out)
         self.__lock.acquire()
         self.mi.append(mutual_information)
         self.__lock.release()

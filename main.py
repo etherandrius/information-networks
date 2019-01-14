@@ -7,17 +7,20 @@ from tqdm import tqdm
 from util import *
 from information.util import CalculateInformationCallback
 
-mean = [10, 0]
-L = np.matrix([[0.5], [0.7]])
-#cov = np.matrix([[1, 0], [0, 1]])
-print(L)
-cov = L * np.transpose(L)
-print(cov)
-x, y = np.random.multivariate_normal(mean, cov, 5000).T
+import lnn.lnn as lnn
 
-plt.plot(x, y)
-plt.axis('equal')
-plt.show()
+#mean = [10, 0]
+#L = np.matrix([[0.5], [0.7]])
+##cov = np.matrix([[1, 0], [0, 1]])
+#print(L)
+#cov = L * np.transpose(L)
+#print(cov)
+#x, y = np.random.multivariate_normal(mean, cov, 5000).T
+#
+#plt.plot(x, y)
+#plt.axis('equal')
+#plt.show()
+
 
 def main():
     args = parameters()
@@ -34,7 +37,9 @@ def main():
 
     print("Training")
     information_callback = CalculateInformationCallback(
-        model, information.calculate_information, x_test, y_test, skip, cores)
+        model, information.calculate_information(x_test, y_test), x_test, skip, cores)
+    #information_callback = CalculateInformationCallback(
+    #    model, information.calculate_information_lnn(x_test, y_test), x_test, skip, cores)
     model.fit(x_train, y_train,
               batch_size=batch_size,
               callbacks=[information_callback],
@@ -55,7 +60,6 @@ def main():
 
     print("Saving data to file : ", filename)
     _pickle.dump(information_callback.mi, open("output/data/" + filename, 'wb'))
-
     print("Producing image")
     plot(i_x_t, i_y_t, show=False, filename="output/images/" + filename)
 
@@ -89,4 +93,4 @@ def plot(data_x, data_y, show=False, filename=None):
 
 if __name__ == '__main__':
     print("Start")
-    #main()
+    main()

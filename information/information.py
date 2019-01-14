@@ -1,5 +1,6 @@
 import numpy as np
-from information.util import binarize
+from information.util import binarize, add_noise
+import lnn.lnn as lnn
 
 
 def get_probabilities(data):
@@ -14,6 +15,17 @@ def get_probabilities(data):
 def bin_value(n, low=-1, high=1, batches=10):
     e = (high - low) / batches
     return max(min(int((n - low) / e), batches - 1), 0)
+
+
+def bin_array(N, low=-1, high=1, batches=10):
+    result = []
+    for n in N:
+        if isinstance(n, np.ndarray) or isinstance(n, list):
+            new_n = bin_array(n, low, high, batches)
+        else:
+            new_n = bin_value(n, low, high, batches)
+        result.append(new_n)
+    return result
 
 
 def entropy_of_probabilities(probabilities):
@@ -37,17 +49,6 @@ def conditional_entropy(data_y, data_x):
     return entropy
 
 
-def bin_array(N, low=-1, high=1, batches=10):
-    result = []
-    for n in N:
-        if isinstance(n, np.ndarray) or isinstance(n, list):
-            new_n = bin_array(n, low, high, batches)
-        else:
-            new_n = bin_value(n, low, high, batches)
-        result.append(new_n)
-    return result
-
-
 def calculate_information_data(data_x, data_y):
     x = binarize(data_x)
     y = binarize(data_y)
@@ -59,26 +60,56 @@ def calculate_information_data(data_x, data_y):
     return mutual_information
 
 
-def calculate_information(activation, input_values, labels):
+def calculate_information_lnn(input_values, labels):
+
+    data_x = input_values
+    data_y = labels
+
+    noise = lambda: np.random.normal(0, 0.7, 1)[0] # 0.7 ~= sqrt(0.5)
+    data_x = add_noise(input_values, noise)
+    data_y = add_noise(labels, noise)
+
+    entropy = lnn.KL_entropy
+
+    e_y = entropy(data_y)
+    e_x = entropy(data_x)
+
+    def information(activation):
+        # data_t = [add_noise(a, noise) for a in activation]
+        data_t = activation # don't think need to add noise to activations as they are produced randomly by the neural
+        # network training algorithm
+
+        e_t_y = [entropy(np.array([np.append(t, y) for t, y in zip(layer, data_y)])) for layer in data_t]
+        e_t_x = [entropy(np.array([np.append(t, x) for t, x in zip(layer, data_x)])) for layer in data_t]
+        i_x_t = e_x + e_y - e_t_x
+        i_y_t = e_x + e_y - e_t_y
+
+        return i_x_t, i_y_t
+
+    return information
+
+
+def calculate_information(input_values, labels):
     # activation layers*test_case*neuron -> value)
 
     # calculate information I(X,T) and I(T,Y) where X is the input and Y is the output
     # and T is any layer
-    data_x = input_values
-    data_y = labels
-    data_t = activation
+    def information(activation):
+        data_t = activation
 
-    data_t = [np.asarray(bin_array(t)) for t in data_t]
+        data_t = [np.asarray(bin_array(t)) for t in data_t]
 
-    data_x = binarize(data_x)
-    data_y = binarize(data_y)
-    data_t = [binarize(t) for t in data_t]
+        data_x = binarize(input_values)
+        data_y = binarize(labels)
+        data_t = [binarize(t) for t in data_t]
 
-    h_t = np.array([entropy_of_data(t) for t in data_t])
-    h_t_x = np.array([conditional_entropy(t, data_x) for t in data_t])
-    h_t_y = np.array([conditional_entropy(t, data_y) for t in data_t])
+        h_t = np.array([entropy_of_data(t) for t in data_t])
+        h_t_x = np.array([conditional_entropy(t, data_x) for t in data_t])
+        h_t_y = np.array([conditional_entropy(t, data_y) for t in data_t])
 
-    i_x_t = h_t - h_t_x
-    i_y_t = h_t - h_t_y
+        i_x_t = h_t - h_t_x
+        i_y_t = h_t - h_t_y
 
-    return i_x_t, i_y_t
+        return i_x_t, i_y_t
+
+    return information
