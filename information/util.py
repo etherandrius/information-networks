@@ -50,7 +50,7 @@ class CalculateInformationCallback(keras.callbacks.Callback):
         self.__lock.release()
 
     def on_batch_end(self, batch, logs=None):
-        if self.batch % self.__skip == 0:
+        if self.batch < 100 or self.batch % self.__skip == 0:
             out = self.__functor([self.__x_test, 0.])
             self.__thread_executor.submit(self.__consume, out)
         self.batch += 1

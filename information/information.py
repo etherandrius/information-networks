@@ -1,7 +1,7 @@
 import numpy as np
 from information.util import binarize, add_noise
 import lnn.lnn as lnn
-
+import information.gaussian_information as gaus
 
 def get_probabilities(data):
     unique_array, _, unique_inverse, unique_counts = \
@@ -60,12 +60,12 @@ def calculate_information_data(data_x, data_y):
     return mutual_information
 
 
-def calculate_information_lnn(input_values, labels, entropy):
+def calculate_information(input_values, labels, entropy):
     data_x = input_values
     data_y = labels
 
     def noise():
-        return np.random.normal(0, 0.7, 1)[0] # 0.7 ~= sqrt(0.5)
+        return np.random.normal(0, 0.01, 1)[0] # 0.7 ~= sqrt(0.5)
     data_x = add_noise(input_values, noise)
     data_y = add_noise(labels, noise)
 
@@ -84,7 +84,8 @@ def calculate_information_lnn(input_values, labels, entropy):
     def information(activation):
         # data_t = [add_noise(a, noise) for a in activation]
         data_t = activation # don't think need to add noise to activations as they are produced randomly by the neural
-        # network training algorithm
+        # network training algorithm, adding noise only prevents entropy calculations from failing in situations when 5
+        # points have the exact same values, then a division by zero is possible.
 
         e_t_y = [entropy(np.array([np.append(t, y) for t, y in zip(layer, data_y)])) for layer in data_t]
         e_t_x = [entropy(np.array([np.append(t, x) for t, x in zip(layer, data_x)])) for layer in data_t]
@@ -96,7 +97,7 @@ def calculate_information_lnn(input_values, labels, entropy):
     return information
 
 
-def calculate_information(input_values, labels):
+def calculate_information_binning(input_values, labels):
     # activation layers*test_case*neuron -> value)
 
     # calculate information I(X,T) and I(T,Y) where X is the input and Y is the output

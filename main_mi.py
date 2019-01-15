@@ -25,16 +25,17 @@ def main():
     print("Training")
     if mi_estimator == "bins":
         information_callback = CalculateInformationCallback(
-            model, information.calculate_information(x_test, y_test), x_test, skip, cores)
+            model, information.calculate_information_binning(x_test, y_test), x_test, skip, cores)
     else:
         information_callback = CalculateInformationCallback(
-            model, information.calculate_information_lnn(x_test, y_test, mi_estimator), x_test, skip, cores)
+            model, information.calculate_information(x_test, y_test, mi_estimator), x_test, skip, cores)
     model.fit(x_train, y_train,
               batch_size=batch_size,
               callbacks=[information_callback],
               epochs=epochs,
               validation_data=(x_test, y_test),
               verbose=1)
+
 
     i_x_t, i_y_t = zip(*information_callback.mi)
 
@@ -81,6 +82,7 @@ def plot(data_x, data_y, show=False, filename=None):
         plt.show()
 
 
+print(__name__)
 if __name__ == '__main__':
     print("Start")
     main()
