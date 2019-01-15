@@ -65,7 +65,7 @@ def calculate_information_lnn(input_values, labels, entropy):
     data_y = labels
 
     def noise():
-        np.random.normal(0, 0.7, 1)[0] # 0.7 ~= sqrt(0.5)
+        return np.random.normal(0, 0.7, 1)[0] # 0.7 ~= sqrt(0.5)
     data_x = add_noise(input_values, noise)
     data_y = add_noise(labels, noise)
 

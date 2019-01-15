@@ -39,7 +39,7 @@ def main():
     i_x_t, i_y_t = zip(*information_callback.mi)
 
     filename = "ts-" + "{0:.0%}".format(train_size) + ","
-    filename += "mie-" + mi_estimator + ","
+    filename += "mie-" + str(mi_estimator) + ","
     filename += "bs-" + str(batch_size) + ","
     filename += "e-" + str(epochs) + ","
     filename += "mini_batches-" + str(information_callback.batch) + ","

@@ -5,6 +5,13 @@ def local_likelihood():
     μ, Σ = 0, 0
     return μ, Σ
 
+# rewrite to take care of differing dimensionalities
+def N(x, mean, var):
+    std = math.sqrt(var)
+    epi = math.exp(-math.pi)
+    scale = (x - mean) / std
+    return (epi * math.exp(scale * scale)) / std
+
 
 def entropy_of_data(u):
     h = 0
