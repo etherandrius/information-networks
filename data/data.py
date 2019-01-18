@@ -6,8 +6,25 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.datasets import mnist
 from data.fabricated import get_fabricated
+from data.InformationProcessor import InformationProcessor
+from data.InfromationProcessorFabricatedData import InformationProcessorFabricatedData
 
 supported_data_sets = ["Tishby", "MNIST", "Fabricated"]
+
+
+def get_information_dataset(data_set, mi_estimator, train_size, fabricated=None):
+    if data_set == 'MNIST':
+        train, test, cat = get_mnist(train_size)
+        return InformationProcessor(mi_estimator, train, test, cat)
+    elif data_set == "Tishby":
+        train, test, cat = get_tishby(train_size)
+        return InformationProcessor(mi_estimator, train, test, cat)
+    elif data_set == "Fabricated":
+        train, test, cat, rel = get_fabricated(load_data(fabricated.base, train_size), fabricated.dim)
+        return InformationProcessorFabricatedData(mi_estimator, train, test, cat, rel)
+    else:
+        raise ValueError("Data set {} is not supported, supported data sets: {}"
+                         .format(data_set, supported_data_sets))
 
 
 def load_data(data_set, train_size, fabricated=None):

@@ -3,20 +3,22 @@ import networks.networks as networks
 import _pickle
 from parameters import *
 from information.CalculateInformationCallback import CalculateInformationCallback
-from data.data import load_data
+from data.data import get_information_dataset
 from plot.plot import plot
 
 
 def main():
     params = parameters()
 
-    (x_train, y_train), (x_test, y_test), categories = load_data(params.data_set, params.train_size, params.fabricated)
+    data_set = get_information_dataset(params.data_set, params.mi_estimator, params.train_size, params.fabricated)
+    (x_train, y_train), (x_test, y_test) = (data_set.x_train, data_set.y_train), (data_set.x_test, data_set.y_test)
+    categories = data_set.categories
     model = networks.get_model_categorical(
         input_shape=x_train[0].shape, network_shape=params.shape, categories=categories)
 
     print("Training")
     information_callback = CalculateInformationCallback(
-        model, inf.calculate_information(x_test, y_test, params.mi_estimator), x_test, params.skip, params.cores)
+        model, data_set.information_calculator, x_test, params.skip, params.cores)
     model.fit(x_train, y_train,
               batch_size=params.batch_size,
               callbacks=[information_callback],
@@ -24,12 +26,11 @@ def main():
               validation_data=(x_test, y_test),
               verbose=1)
 
-    i_x_t, i_y_t = zip(*information_callback.mi)
-    fName = filename()
+    fName = filename(params)
     print("Saving data to file : ", fName)
-    _pickle.dump(information_callback.mi, open("output/data/" + fName, 'wb'))
+    data_set.save("output/data/" + fName)
     print("Producing image")
-    plot(i_x_t, i_y_t, show=False, filename="output/images/" + fName)
+    data_set.plot(path="output/images/" + fName)
     print("Done")
     return
 
@@ -39,7 +40,6 @@ def filename(params):
     name += "mie-" + str(params.mi_estimator) + ","
     name += "bs-" + str(params.batch_size) + ","
     name += "e-" + str(params.epochs) + ","
-    name += "mini_batches-" + str(params.information_callback.batch) + ","
     name += "s-" + str(params.skip) + ","
     name += "ns-" + str(params.shape)
     if params.data_set == 'MNIST':

@@ -5,7 +5,7 @@ import itertools
 from tqdm import tqdm
 
 
-def plot(data_x, data_y, show=False, filename=None):
+def plot(data_x, data_y, filename=None, show=False):
     cmap = plt.get_cmap('gnuplot')
     colors = [cmap(i) for i in np.linspace(0, 1, len(data_x))]
     for ix in tqdm(range(len(data_x))):
