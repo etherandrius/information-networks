@@ -4,6 +4,7 @@ import information.NaftaliTishby as nTishby
 
 supported_estimators = ["KL", "KDE", "LNN_1", "LNN_2", "bins"]
 
+
 def calculate_information(input_values, labels, entropy):
     if entropy == "bins":
         return nTishby.__calculate_information_binning(input_values, labels)
