@@ -1,4 +1,4 @@
-import information.information as information
+import information.information as inf
 import networks.networks as networks
 import _pickle
 from parameters import *
@@ -10,14 +10,13 @@ from plot.plot import plot
 def main():
     params = parameters()
 
-    (x_train, y_train), (x_test, y_test), categories = load_data(params.data_set, params.train_size)
+    (x_train, y_train), (x_test, y_test), categories = load_data(params.data_set, params.train_size, params.fabricated)
     model = networks.get_model_categorical(
         input_shape=x_train[0].shape, network_shape=params.shape, categories=categories)
 
     print("Training")
     information_callback = CalculateInformationCallback(
-        model,
-        information.calculate_information(x_test, y_test, params.mi_estimator), x_test, params.skip, params.cores)
+        model, inf.calculate_information(x_test, y_test, params.mi_estimator), x_test, params.skip, params.cores)
     model.fit(x_train, y_train,
               batch_size=params.batch_size,
               callbacks=[information_callback],

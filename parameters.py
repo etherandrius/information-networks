@@ -1,6 +1,13 @@
 import argparse
 import multiprocessing
 from information.information import supported_estimators as estimators
+from data.data import supported_data_sets as data_sets
+
+
+class Fabricated(object):
+    def __init__(self, args):
+        self.dim = args.fab_dim
+        self.base = args.fab_base
 
 
 class Parameters(object):
@@ -13,13 +20,15 @@ class Parameters(object):
         self.cores = args.cores
         self.data_set = args.data_set
         self.mi_estimator = args.mi_estimator
+        self.fabricated = Fabricated(args)
 
 
 def parameters():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_set',
-                        '-ds', dest='data_set', default='default',
-                        help='choose a data set, available: [default, MNIST], default - data set used by Tishby in the original paper')
+                        '-ds', dest='data_set', default='Tishby',
+                        help='choose a data set, available: {}'.format(data_sets) +
+                             ', Tishby - data set used by Tishby in the original paper')
 
     parser.add_argument('--train_size',
                         '-ts', dest='train_size', default=0.8,
@@ -56,6 +65,17 @@ def parameters():
                              "KL - Kozachenko-Leonenko estimator, "
                              "LNN_1, LNN_2 - Local nearest neighbour with order 1 or 2")
 
+    parser.add_argument('--fabricated_dimmensions',
+                        '-fd', dest="fab_dim", default=2,
+                        help="only relevant if data_set=Fabricated, how many irrelevant dimmensions to add to the input for exmample if input is dimension d and -fd=2 new input will have dimmesnion d+2 ")
+
+    parser.add_argument('--fabricated_base',
+                        '-fb', dest="fab_base", default="Tishby",
+                        help="only relevant if data_set=Fabricated, what data set to use as a base for the fabricated data set default=Tishby, available: {}".format(data_sets[:-1]))
+
     args = parser.parse_args()
+    if args.fab_base == "Fabricated":
+        raise ValueError("Fabricated cannot be a base for Fabricated")
+
     args.shape = list(map(int, args.shape.split(',')))
     return Parameters(args)
