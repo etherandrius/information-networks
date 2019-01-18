@@ -1,19 +1,19 @@
 import numpy as np
-import lnn.lnn as lnn
-import information.tishby_information as tishby
+import information.WeihaoGao as wgao
+import information.NaftaliTishby as tishby
 
 
 def calculate_information(input_values, labels, entropy):
     if entropy == "bins":
         return tishby.__calculate_information_binning(input_values, labels)
     elif entropy == "KL":
-        entropy = lnn.KL_entropy
+        entropy = wgao.KL_entropy
     elif entropy == "KDE":
-        entropy = lnn.KDE_entropy
+        entropy = wgao.KDE_entropy
     elif entropy == "LNN_2":
-        entropy = lnn.LNN_2_entropy
+        entropy = wgao.LNN_2_entropy
     elif entropy == "LNN_1":
-        entropy = lnn.LNN_1_entropy
+        entropy = wgao.LNN_1_entropy
     else:
         raise ValueError("Unsuported mutual information estimator, available: [KL, KDE, LNN_2, LNN_1, bins]")
 
