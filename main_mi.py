@@ -5,7 +5,7 @@ import _pickle
 import time
 from tqdm import tqdm
 from util import *
-from information.util import CalculateInformationCallback
+from information.CalculateInformationCallback import CalculateInformationCallback
 
 
 def main():
@@ -23,19 +23,14 @@ def main():
     model = networks.get_model_categorical(input_shape=x_train[0].shape, network_shape=shape, categories=categories)
 
     print("Training")
-    if mi_estimator == "bins":
-        information_callback = CalculateInformationCallback(
-            model, information.calculate_information_binning(x_test, y_test), x_test, skip, cores)
-    else:
-        information_callback = CalculateInformationCallback(
-            model, information.calculate_information(x_test, y_test, mi_estimator), x_test, skip, cores)
+    information_callback = CalculateInformationCallback(
+        model, information.calculate_information(x_test, y_test, mi_estimator), x_test, skip, cores)
     model.fit(x_train, y_train,
               batch_size=batch_size,
               callbacks=[information_callback],
               epochs=epochs,
               validation_data=(x_test, y_test),
               verbose=1)
-
 
     i_x_t, i_y_t = zip(*information_callback.mi)
 

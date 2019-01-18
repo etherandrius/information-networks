@@ -1,1 +1,1 @@
-python3.6 main.py -e=8000 -s=400 -ts=0.05 -c=6 -mie="LNN_1"
+python3.6 main_mi.py -e=8000 -s=20 -ts=0.05 -c=1 -mie="KDE"

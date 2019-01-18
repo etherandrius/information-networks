@@ -1,32 +1,7 @@
-import numpy as np
 import tensorflow.keras as keras
 from threading import Lock
 from tensorflow.keras import backend as K
 from BlockingThreadPoolExecutor import BlockingThreadPoolExecutor
-
-
-def binarize(data):
-    if len(data.shape) < 2:
-        return data
-    return np \
-        .ascontiguousarray(data) \
-        .view(np.dtype((np.void, data.dtype.itemsize * data.shape[1])))
-
-
-# addding noise is necessary to prevent infinite MI (i.e prevents division by zero for some MI estimators)
-def add_noise(data, noise_function):
-    result = []
-    for n in data:
-        if isinstance(n, np.ndarray) or isinstance(n, list):
-            new_n = add_noise(n, noise_function)
-        else:
-            new_n = __add_noise_value(n, noise_function)
-        result.append(new_n)
-    return np.array(result)
-
-
-def __add_noise_value(n, noise_function):
-    return n + noise_function()
 
 
 class CalculateInformationCallback(keras.callbacks.Callback):
@@ -50,7 +25,7 @@ class CalculateInformationCallback(keras.callbacks.Callback):
         self.__lock.release()
 
     def on_batch_end(self, batch, logs=None):
-        if self.batch < 100 or self.batch % self.__skip == 0:
+        if self.batch % self.__skip == 0:
             out = self.__functor([self.__x_test, 0.])
             self.__thread_executor.submit(self.__consume, out)
         self.batch += 1
