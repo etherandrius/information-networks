@@ -8,6 +8,7 @@ import itertools
 import multiprocessing
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.datasets import mnist
+from information.information import supported_estimators as estimators
 
 
 class DataSet(object):
@@ -24,6 +25,18 @@ class DataSet(object):
         train = DataSet(x_train, y_train)
         test = DataSet(x_test, y_test)
         return train, test
+
+
+class Parameters(object):
+    def __init__(self, args):
+        self.train_size = args.train_size
+        self.batch_size = args.batch_size
+        self.epochs = args.epochs
+        self.skip = args.skip
+        self.shape = args.shape
+        self.cores = args.cores
+        self.data_set = args.data_set
+        self.mi_estimator = args.mi_estimator
 
 
 def parameters():
@@ -52,17 +65,16 @@ def parameters():
                         '-s', dest='skip', default=1,
                         type=int, help="Calculate information for every n'th mini-batch epoch")
 
-    parser.add_argument('--network_shape',
-                        '-ns', dest='shape', default="12,10,8,6,4,2,1",
-                        help='Shape of the DNN')
+    parser.add_argument('--network_shape', '-ns', dest='shape', default="12,10,8,6,4,2,1", help='Shape of the DNN')
 
     parser.add_argument('--cores',
                         '-c', dest='cores', default=multiprocessing.cpu_count(),
-                        type=int, help='How many cores to use for mutual information computation defaults to number of cores on the machine')
+                        type=int,
+                        help='How many cores to use for mutual information computation defaults to number of cores on the machine')
 
     parser.add_argument('--mi_estimator',
                         '-mie', dest='mi_estimator', default="bins",
-                        help="Choose what mutual information estimator to use available: [bins, KDE, KL, LNN_1, LNN_2], "
+                        help="Choose what mutual information estimator to use available: {}, ".format(estimators) +
                              "bins - method used by Tishby in his paper, "
                              "KDE - Kernel density estimator, "
                              "KL - Kozachenko-Leonenko estimator, "
@@ -70,7 +82,7 @@ def parameters():
 
     args = parser.parse_args()
     args.shape = list(map(int, args.shape.split(',')))
-    return args
+    return Parameters(args)
 
 
 def load_data(data_set, train_size):

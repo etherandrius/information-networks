@@ -2,6 +2,7 @@ import numpy as np
 import information.WeihaoGao as wGao
 import information.NaftaliTishby as nTishby
 
+supported_estimators = ["KL", "KDE", "LNN_1", "LNN_2", "bins"]
 
 def calculate_information(input_values, labels, entropy):
     if entropy == "bins":
@@ -15,7 +16,7 @@ def calculate_information(input_values, labels, entropy):
     elif entropy == "LNN_1":
         entropy = wGao.LNN_1_entropy
     else:
-        raise ValueError("Unsuported mutual information estimator, available: [KL, KDE, LNN_2, LNN_1, bins]")
+        raise ValueError("Unsuported mutual information estimator, available: {}".format(supported_estimators))
 
     return __calculate_information_lnn(input_values, labels, entropy)
 

@@ -9,46 +9,28 @@ from information.CalculateInformationCallback import CalculateInformationCallbac
 
 
 def main():
-    args = parameters()
-    train_size = args.train_size
-    batch_size = args.batch_size
-    epochs = args.epochs
-    skip = args.skip
-    shape = args.shape
-    cores = args.cores
-    data_set = args.data_set
-    mi_estimator = args.mi_estimator
+    params = parameters()
 
-    (x_train, y_train), (x_test, y_test), categories = load_data(data_set, train_size)
-    model = networks.get_model_categorical(input_shape=x_train[0].shape, network_shape=shape, categories=categories)
+    (x_train, y_train), (x_test, y_test), categories = load_data(params.data_set, params.train_size)
+    model = networks.get_model_categorical(input_shape=x_train[0].shape, network_shape=params.shape, categories=categories)
 
     print("Training")
     information_callback = CalculateInformationCallback(
-        model, information.calculate_information(x_test, y_test, mi_estimator), x_test, skip, cores)
+        model,
+        information.calculate_information(x_test, y_test, params.mi_estimator), x_test, params.skip, params.cores)
     model.fit(x_train, y_train,
-              batch_size=batch_size,
+              batch_size=params.batch_size,
               callbacks=[information_callback],
-              epochs=epochs,
+              epochs=params.epochs,
               validation_data=(x_test, y_test),
               verbose=1)
 
     i_x_t, i_y_t = zip(*information_callback.mi)
-
-    filename = "ts-" + "{0:.0%}".format(train_size) + ","
-    filename += "mie-" + str(mi_estimator) + ","
-    filename += "bs-" + str(batch_size) + ","
-    filename += "e-" + str(epochs) + ","
-    filename += "mini_batches-" + str(information_callback.batch) + ","
-    filename += "s-" + str(skip) + ","
-    filename += "ns-" + str(shape)
-    if data_set == 'MNIST':
-        filename += "_mnist"
-
-    print("Saving data to file : ", filename)
-    _pickle.dump(information_callback.mi, open("output/data/" + filename, 'wb'))
+    fname = filename()
+    print("Saving data to file : ", fname)
+    _pickle.dump(information_callback.mi, open("output/data/" + fname, 'wb'))
     print("Producing image")
-    plot(i_x_t, i_y_t, show=False, filename="output/images/" + filename)
-
+    plot(i_x_t, i_y_t, show=False, filename="output/images/" + fname)
     print("Done")
     return
 
@@ -75,6 +57,19 @@ def plot(data_x, data_y, show=False, filename=None):
         print("Time taken to save to file {:.3f}s".format((end-start)))
     if show:
         plt.show()
+
+
+def filename(params):
+    name = "ts-" + "{0:.0%}".format(params.train_size) + ","
+    name += "mie-" + str(params.mi_estimator) + ","
+    name += "bs-" + str(params.batch_size) + ","
+    name += "e-" + str(params.epochs) + ","
+    name += "mini_batches-" + str(params.information_callback.batch) + ","
+    name += "s-" + str(params.skip) + ","
+    name += "ns-" + str(params.shape)
+    if params.data_set == 'MNIST':
+        name += "_mnist"
+    return name
 
 
 print(__name__)
