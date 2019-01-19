@@ -1,13 +1,13 @@
 from data.InformationProcessor import InformationProcessor
-import information.information as inf
 
 
 class InformationProcessorFabricatedData(InformationProcessor):
-    def __init__(self, mi_estimator, train, test, categories, num_relevant_dim):
+    def __init__(self, train, test, categories,  num_relevant_dim, filename=None, mi_estimator=None):
         """
-        :param num_relevant_dim: how many dimensions are relevant input, if our x has 10 dimensions and num_relevant_dim = 2 then only first two of them are relevant others are irrelevent
+        :param num_relevant_dim: how many dimensions are relevant input, if our x has 10 dimensions and
+                                 num_relevant_dim = 2 then only first two of them are relevant others are irrelevant
         """
-        super().__init__(mi_estimator, train, test, categories)
+        super().__init__(train, test, categories)
         x_train, y_train = train
         x_test, y_test = test
 
@@ -16,20 +16,22 @@ class InformationProcessorFabricatedData(InformationProcessor):
         x_test_rel = x_test[:, :num_relevant_dim]
         x_test_irr = x_test[:, num_relevant_dim:]
 
-        self._relIP = InformationProcessor(mi_estimator, (x_train_rel, y_train), (x_test_rel, y_test), categories)
-        self._irrIP = InformationProcessor(mi_estimator, (x_train_irr, y_train), (x_test_irr, y_test), categories)
+        self._relIP = InformationProcessor(
+            (x_train_rel, y_train), (x_test_rel, y_test), categories, filename + "_rel", mi_estimator)
+        self._irrIP = InformationProcessor(
+            (x_train_irr, y_train), (x_test_irr, y_test), categories, filename + "_irr", mi_estimator)
 
     def information_calculator(self, activations):
         self._relIP.information_calculator(activations)
         self._irrIP.information_calculator(activations)
 
-    def save(self, path):
-        self._relIP.save(path + "_rel")
-        self._irrIP.save(path + "_irr")
+    def save(self):
+        self._relIP.save()
+        self._irrIP.save()
 
-    def plot(self, path=None, show=False):
-        self._relIP.plot(path + "_rel", show)
-        self._irrIP.plot(path + "_irr", show)
+    def plot(self, show=False):
+        self._relIP.plot(show)
+        self._irrIP.plot(show)
 
 
 

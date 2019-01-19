@@ -8,20 +8,33 @@ from tensorflow.keras.datasets import mnist
 from data.fabricated import get_fabricated
 from data.InformationProcessor import InformationProcessor
 from data.InfromationProcessorFabricatedData import InformationProcessorFabricatedData
+from data.InformationProcessorUnion import InformationProcessorUnion
 
 supported_data_sets = ["Tishby", "MNIST", "Fabricated"]
 
 
-def get_information_dataset(data_set, mi_estimator, train_size, fabricated=None):
+def get_information_processor(params):
+    ds = params.data_set
+    mi_e = params.mi_estimator
+    ts = params.train_size
+    fab = params.fabricated
+    if ',' in params.mi_estimator:
+        ips = [__get_information_processor(ds, mie, ts, filename(params, mie), fab) for mie in mi_e.split(',')]
+        return InformationProcessorUnion(ips)
+
+    return __get_information_processor(ds, mi_e, ts, filename(params), fab)
+
+
+def __get_information_processor(data_set, mi_estimator, train_size, filename, fabricated=None):
     if data_set == 'MNIST':
         train, test, cat = get_mnist(train_size)
-        return InformationProcessor(mi_estimator, train, test, cat)
+        return InformationProcessor(train, test, cat, filename, mi_estimator)
     elif data_set == "Tishby":
         train, test, cat = get_tishby(train_size)
-        return InformationProcessor(mi_estimator, train, test, cat)
+        return InformationProcessor(train, test, cat, filename, mi_estimator)
     elif data_set == "Fabricated":
         train, test, cat, rel = get_fabricated(load_data(fabricated.base, train_size), fabricated.dim)
-        return InformationProcessorFabricatedData(mi_estimator, train, test, cat, rel)
+        return InformationProcessorFabricatedData(train, test, cat, rel, filename, mi_estimator)
     else:
         raise ValueError("Data set {} is not supported, supported data sets: {}"
                          .format(data_set, supported_data_sets))
@@ -61,3 +74,18 @@ def get_tishby(train_size):
     x_train, x_test, y_train, y_test = train_test_split(data, labels, train_size=train_size)
     return (x_train, y_train), (x_test, y_test), 2
 
+
+def filename(params, mie=None):
+    name = "ts-" + "{0:.0%}".format(params.train_size) + ","
+    if mie is None:
+        name += "mie-" + str(params.mi_estimator) + ","
+    else:
+        name += "mie-" + str(mie) + ","
+    name += "bs-" + str(params.batch_size) + ","
+    name += "e-" + str(params.epochs) + ","
+    name += "s-" + str(params.skip) + ","
+    name += "ns-" + str(params.shape)
+    name += "_" + params.data_set
+    if params.data_set == 'Fabricated':
+        name += "_d-" + str(params.fabricated.dim)
+    return name

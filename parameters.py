@@ -67,7 +67,7 @@ def parameters():
 
     parser.add_argument('--fabricated_dimmensions',
                         '-fd', dest="fab_dim", default=2,
-                        help="only relevant if data_set=Fabricated, how many irrelevant dimmensions to add to the input for exmample if input is dimension d and -fd=2 new input will have dimmesnion d+2 ")
+                        type=int, help="only relevant if data_set=Fabricated, how many irrelevant dimmensions to add to the input for exmample if input is dimension d and -fd=2 new input will have dimmesnion d+2 ")
 
     parser.add_argument('--fabricated_base',
                         '-fb', dest="fab_base", default="Tishby",
