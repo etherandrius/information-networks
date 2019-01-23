@@ -40,7 +40,15 @@ def entropy_of_probabilities(probabilities):
 
 def entropy_of_data(data):
     prob_data, _ = get_probabilities(data)
-    return entropy_of_probabilities(prob_data)
+    e = entropy_of_probabilities(prob_data)
+    return e
+
+
+def bin_then_enrtopy(data):
+    bined_data = np.asarray(bin_array(data))
+    binar_data = binarize(bined_data)
+    e = entropy_of_data(binar_data)
+    return e
 
 
 def __conditional_entropy(data_y, data_x):

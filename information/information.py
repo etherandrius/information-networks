@@ -8,6 +8,8 @@ supported_estimators = ["KL", "KDE", "LNN_1", "LNN_2", "bins"]
 def calculate_information(input_values, labels, entropy):
     if entropy == "bins":
         return nTishby.__calculate_information_binning(input_values, labels)
+    elif entropy == "bins2":
+        entropy = nTishby.bin_then_enrtopy
     elif entropy == "KL":
         entropy = wGao.KL_entropy
     elif entropy == "KDE":
@@ -16,7 +18,7 @@ def calculate_information(input_values, labels, entropy):
         entropy = wGao.LNN_2_entropy
     elif entropy == "LNN_1":
         entropy = wGao.LNN_1_entropy
-    elif entropy == None:
+    elif entropy is None:
         return lambda x: None
     else:
         raise ValueError("Unsuported mutual information estimator {}, available: {}".format(entropy, input_values))
@@ -42,10 +44,12 @@ def __calculate_information_lnn(input_values, labels, entropy):
         # network training algorithm, adding noise only prevents entropy calculations from failing in situations when 5
         # points have the exact same values, then a division by zero is possible.
 
+        e_t = [entropy(t) for t in data_t]
+
         e_t_y = [entropy(np.array([np.append(t, y) for t, y in zip(layer, data_y)])) for layer in data_t]
         e_t_x = [entropy(np.array([np.append(t, x) for t, x in zip(layer, data_x)])) for layer in data_t]
-        i_x_t = e_x + e_y - e_t_x
-        i_y_t = e_x + e_y - e_t_y
+        i_x_t = e_x + e_t - e_t_x
+        i_y_t = e_y + e_t - e_t_y
 
         return i_x_t, i_y_t
 
