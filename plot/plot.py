@@ -27,6 +27,7 @@ def plot(data_x, data_y, filename=None, show=False):
         print("Time taken to save to file {:.3f}s".format((end-start)))
     if show:
         plt.show()
+    plt.cla()
 
 
 def pairwise(itt):

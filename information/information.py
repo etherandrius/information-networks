@@ -9,7 +9,7 @@ def calculate_information(input_values, labels, entropy):
     if entropy == "bins":
         return nTishby.__calculate_information_binning(input_values, labels)
     elif entropy == "bins2":
-        entropy = nTishby.bin_then_enrtopy
+        entropy = nTishby.bin_then_entropy
     elif entropy == "KL":
         entropy = wGao.KL_entropy
     elif entropy == "KDE":
@@ -40,7 +40,7 @@ def __calculate_information_lnn(input_values, labels, entropy):
 
     def information(activation):
         # data_t = [add_noise(a, noise) for a in activation]
-        data_t = activation # don't think need to add noise to activations as they are produced randomly by the neural
+        data_t = activation  # don't think need to add noise to activations as they are produced randomly by the neural
         # network training algorithm, adding noise only prevents entropy calculations from failing in situations when 5
         # points have the exact same values, then a division by zero is possible.
 

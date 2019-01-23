@@ -14,7 +14,7 @@ def main():
     (x_train, y_train), (x_test, y_test) = (data_set.x_train, data_set.y_train), (data_set.x_test, data_set.y_test)
     categories = data_set.categories
     model = networks.get_model_categorical(
-        input_shape=x_train[0].shape, network_shape=params.shape, categories=categories)
+        input_shape=x_train[0].shape, network_shape=params.shape, categories=categories, activation=params.activation)
 
     print("Training")
     information_callback = CalculateInformationCallback(
@@ -26,11 +26,12 @@ def main():
               validation_data=(x_test, y_test),
               verbose=1)
 
+    append = ",b-" + str(information_callback.batch)
     #fName = filename(params)
     print("Saving data to files")
-    data_set.save()
+    data_set.save(append=append)
     print("Producing image")
-    data_set.plot()
+    data_set.plot(append=append)
     print("Done")
     return
 

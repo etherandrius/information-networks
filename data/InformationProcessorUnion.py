@@ -20,12 +20,12 @@ class InformationProcessorUnion(InformationProcessor):
         for ip in self.ips:
             ip.information_calculator(activations)
 
-    def save(self):
+    def save(self, append=""):
         for ip in self.ips:
-            ip.save()
+            ip.save(append=append)
 
-    def plot(self, show=False):
+    def plot(self, append="", show=False):
         for ip in self.ips:
-            ip.plot(show)
+            ip.plot(append=append, show=show)
 
 

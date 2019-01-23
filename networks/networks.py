@@ -4,6 +4,7 @@ from tensorflow.keras import Sequential
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras import backend as K
 
+activation_functions = ["tanh, sigmoid, relu, linear"]
 
 def get_model_categorical(input_shape, network_shape=[10, 7, 5, 4, 3], categories=2, activation='tanh'):
     tf.logging.set_verbosity(tf.logging.ERROR)  # ignores warning caused by callbacks being expensive

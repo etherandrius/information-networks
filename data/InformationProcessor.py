@@ -29,12 +29,12 @@ class InformationProcessor(object):
         self.mi.append(mutual_information)
         self.__lock.release()
 
-    def save(self):
-        _pickle.dump(self.mi, open("output/data/" + self.filename, 'wb'))
+    def save(self, append=""):
+        _pickle.dump(self.mi, open("output/data/" + self.filename + append, 'wb'))
 
-    def plot(self, show=False):
+    def plot(self, append="", show=False):
         i_x_t, i_y_t = zip(*self.mi)
-        plot(i_x_t, i_y_t, "output/images/" + self.filename, show)
+        plot(i_x_t, i_y_t, "output/images/" + self.filename + append, show)
 
 
 

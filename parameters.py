@@ -2,6 +2,7 @@ import argparse
 import multiprocessing
 from information.information import supported_estimators as estimators
 from data.data import supported_data_sets as data_sets
+from networks.networks import activation_functions as functions
 
 
 class Fabricated(object):
@@ -20,6 +21,7 @@ class Parameters(object):
         self.cores = args.cores
         self.data_set = args.data_set
         self.mi_estimator = args.mi_estimator
+        self.activation = args.activation
         self.fabricated = Fabricated(args)
 
 
@@ -64,6 +66,10 @@ def parameters():
                              "KDE - Kernel density estimator, "
                              "KL - Kozachenko-Leonenko estimator, "
                              "LNN_1, LNN_2 - Local nearest neighbour with order 1 or 2")
+
+    parser.add_argument('--activation_function',
+                        '-af', dest='activation', default="tanh",
+                        help="Choose what neural network activation function to use available: {}".format(functions))
 
     parser.add_argument('--fabricated_dimmensions',
                         '-fd', dest="fab_dim", default=2,

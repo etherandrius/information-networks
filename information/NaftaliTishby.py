@@ -44,7 +44,7 @@ def entropy_of_data(data):
     return e
 
 
-def bin_then_enrtopy(data):
+def bin_then_entropy(data):
     bined_data = np.asarray(bin_array(data))
     binar_data = binarize(bined_data)
     e = entropy_of_data(binar_data)
@@ -79,13 +79,14 @@ def __calculate_information_binning(input_values, labels):
 
     # calculate information I(X,T) and I(T,Y) where X is the input and Y is the output
     # and T is any layer
+    data_x = binarize(input_values)
+    data_y = binarize(labels)
+
     def information(activation):
         data_t = activation
 
         data_t = [np.asarray(bin_array(t)) for t in data_t]
 
-        data_x = binarize(input_values)
-        data_y = binarize(labels)
         data_t = [binarize(t) for t in data_t]
 
         h_t = np.array([entropy_of_data(t) for t in data_t])

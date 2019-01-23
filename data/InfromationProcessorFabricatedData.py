@@ -25,13 +25,13 @@ class InformationProcessorFabricatedData(InformationProcessor):
         self._relIP.information_calculator(activations)
         self._irrIP.information_calculator(activations)
 
-    def save(self):
-        self._relIP.save()
-        self._irrIP.save()
+    def save(self, append=""):
+        self._relIP.save(append=append)
+        self._irrIP.save(append=append)
 
-    def plot(self, show=False):
-        self._relIP.plot(show)
-        self._irrIP.plot(show)
+    def plot(self, append="", show=False):
+        self._relIP.plot(show=show, append=append)
+        self._irrIP.plot(show=show, append=append)
 
 
 
