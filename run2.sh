@@ -1,1 +1,1 @@
-python3.6 main_mi.py -e=10 -s=15 -ts=0.05 -c=3 -mie="bins,bins2" -af=relu
+python3.6 main_mi.py -e=350 -s=15 -ts=0.45 -c=1 -mie="bins,KDE,KL,LNN_1"
