@@ -1,10 +1,7 @@
-import information.information as inf
 import networks.networks as networks
-import _pickle
 from parameters import *
 from information.CalculateInformationCallback import CalculateInformationCallback
 from data.data import get_information_processor
-from plot.plot import plot
 
 
 def main():
@@ -27,9 +24,8 @@ def main():
               verbose=1)
 
     append = ",b-" + str(information_callback.batch)
-    #fName = filename(params)
     print("Saving data to files")
-    data_set.save(append=append)
+    data_set.save(append=append + "_pickle")
     print("Producing image")
     data_set.plot(append=append)
     print("Done")
