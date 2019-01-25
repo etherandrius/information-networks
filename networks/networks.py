@@ -11,33 +11,35 @@ def get_model_categorical(input_shape, network_shape, categories=2, activation='
     tf.logging.set_verbosity(tf.logging.ERROR)  # ignores warning caused by callbacks being expensive
     model = Sequential()
     network_shape = network_shape.split(',')
-    size, layer, func = decode_layer(network_shape[0], activation)
+    size, layer, func = decode_layer_spec(network_shape[0], activation)
     model.add(layer(size, activation=func, input_shape=input_shape))
-    for layer_spec in network_shape[1:]:
-        size, layer, func = decode_layer(layer_spec, activation)
-        model.add(layer(size, activation=func))
-    model.add(Dense(categories, activation='softmax'))
+
+    for layer_spec in network_shape[1:-1]:
+        model.add(decode_layer(layer_spec, activation))
+
+    size, layer, func = decode_layer_spec(network_shape[0], activation)
+    model.add(layer(size, activation='softmax'))
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-
     return model
 
 
 def decode_layer(spec, activation="tanh"):
+    size, layer, func = decode_layer_spec(spec, activation)
+    if layer == "Dense" or layer == "D":
+        return Dense(size, activation=func)
+    elif layer == "Dropout" or layer == "Dr":
+        return Dropout()
+    elif layer == "BatchNormalization" or layer == "BN":
+        return BatchNormalization()
+
+
+def decode_layer_spec(spec, activation="tanh"):
     spec = spec.split('-')
     size = int(spec[0])
-    layer = decode_layer_type(spec[1]) if len(spec) > 1 else Dense
+    layer = spec[1] if len(spec) > 1 else "Dense"
     func = spec[2] if len(spec) > 2 else activation
     return size, layer, func
-
-
-def decode_layer_type(layer):
-    if layer == "Dense" or layer == "D":
-        return Dense
-    elif layer == "Dropout" or layer == "Dr":
-        return Dropout
-    elif layer == "BatchNormalization" or layer == "BN":
-        return BatchNormalization
 
 
 # trains the model and records value of the activated percpetron for every layer for every test element in x_test,
