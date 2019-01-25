@@ -15,9 +15,9 @@ def main():
 
     print("Training")
     information_callback = CalculateInformationCallback(
-        model, data_set.information_calculator, x_test, params.skip, params.cores)
+        model, data_set.information_calculator, data_set.x_full, params.skip, params.cores)
     model.fit(x_train, y_train,
-              batch_size=params.batch_size,
+              batch_size=params.batch_size if params.batch_size > 0 else len(x_train),
               callbacks=[information_callback],
               epochs=params.epochs,
               validation_data=(x_test, y_test),

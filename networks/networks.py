@@ -1,22 +1,43 @@
 import tensorflow as tf
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
+from tensorflow.keras.layers import Dropout, Dense, BatchNormalization
 from tensorflow.keras import Sequential
 from tensorflow.keras.datasets import mnist
 from tensorflow.keras import backend as K
 
 activation_functions = ["tanh, sigmoid, relu, linear"]
 
-def get_model_categorical(input_shape, network_shape=[10, 7, 5, 4, 3], categories=2, activation='tanh'):
+
+def get_model_categorical(input_shape, network_shape, categories=2, activation='tanh'):
     tf.logging.set_verbosity(tf.logging.ERROR)  # ignores warning caused by callbacks being expensive
     model = Sequential()
-    model.add(Dense(network_shape[0], activation=activation, input_shape=input_shape))
-    for lsize in network_shape[1:]:
-        model.add(Dense(lsize, activation=activation))
+    network_shape = network_shape.split(',')
+    size, layer, func = decode_layer(network_shape[0], activation)
+    model.add(layer(size, activation=func, input_shape=input_shape))
+    for layer_spec in network_shape[1:]:
+        size, layer, func = decode_layer(layer_spec, activation)
+        model.add(layer(size, activation=func))
     model.add(Dense(categories, activation='softmax'))
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
     return model
+
+
+def decode_layer(spec, activation="tanh"):
+    spec = spec.split('-')
+    size = int(spec[0])
+    layer = decode_layer_type(spec[1]) if len(spec) > 1 else Dense
+    func = spec[2] if len(spec) > 2 else activation
+    return size, layer, func
+
+
+def decode_layer_type(layer):
+    if layer == "Dense" or layer == "D":
+        return Dense
+    elif layer == "Dropout" or layer == "Dr":
+        return Dropout
+    elif layer == "BatchNormalization" or layer == "BN":
+        return BatchNormalization
 
 
 # trains the model and records value of the activated percpetron for every layer for every test element in x_test,

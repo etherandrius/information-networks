@@ -74,7 +74,13 @@ def __calculate_information_data(data_x, data_y):
     return mutual_information
 
 
-def __calculate_information_binning(input_values, labels):
+def __calculate_information_binning(input_values, labels, spec):
+
+    batches = 30
+    if "-" in spec:
+        _, batches = spec.split('-')
+        batches = int(batches)
+
     # activation layers*test_case*neuron -> value)
 
     # calculate information I(X,T) and I(T,Y) where X is the input and Y is the output
@@ -85,7 +91,7 @@ def __calculate_information_binning(input_values, labels):
     def information(activation):
         data_t = activation
 
-        data_t = [np.asarray(bin_array(t)) for t in data_t]
+        data_t = [np.asarray(bin_array(t, batches=batches)) for t in data_t]
 
         data_t = [binarize(t) for t in data_t]
 

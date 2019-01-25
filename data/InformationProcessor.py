@@ -1,6 +1,7 @@
-from plot.plot import plot
+import numpy as np
 import information.information as inf
 import _pickle
+from plot.plot import plot
 from threading import Lock
 
 
@@ -17,11 +18,13 @@ class InformationProcessor(object):
         self.mi_estimator = mi_estimator
         self.x_train, self.y_train = train
         self.x_test, self.y_test = test
+        self.x_full = np.concatenate((self.x_train, self.x_test))
+        self.y_full = np.concatenate((self.y_train, self.y_test))
         self.categories = categories
         self.filename = filename
         self.mi = []
         self.__lock = Lock()
-        self.__calculator = inf.calculate_information(self.x_test, self.y_test, self.mi_estimator)
+        self.__calculator = inf.calculate_information(self.x_full, self.y_full, self.mi_estimator)
 
     def information_calculator(self, activations):
         mutual_information = self.__calculator(activations)

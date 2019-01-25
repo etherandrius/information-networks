@@ -64,6 +64,8 @@ Suppose the following network.
 
 
 
+How to monitor progress on a VM.
+
 
 
 

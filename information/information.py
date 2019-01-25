@@ -2,12 +2,14 @@ import numpy as np
 import information.WeihaoGao as wGao
 import information.NaftaliTishby as nTishby
 
-supported_estimators = ["KL", "KDE", "LNN_1", "LNN_2", "bins"]
+supported_estimators = ["KL", "KSG", "KDE", "LNN_1", "LNN_2", "bins"]
 
 
 def calculate_information(input_values, labels, entropy):
-    if entropy == "bins":
-        return nTishby.__calculate_information_binning(input_values, labels)
+    if entropy.startswith("bins"):
+        return nTishby.__calculate_information_binning(input_values, labels, entropy)
+    elif entropy == "KSG":
+        return __calculate_information_KSG(input_values, labels)
     elif entropy == "bins2":
         entropy = nTishby.bin_then_entropy
     elif entropy == "KL":
@@ -23,17 +25,41 @@ def calculate_information(input_values, labels, entropy):
     else:
         raise ValueError("Unsuported mutual information estimator {}, available: {}".format(entropy, input_values))
 
-    return __calculate_information_lnn(input_values, labels, entropy)
+    return __calculate_information_wgao(input_values, labels, entropy)
 
 
-def __calculate_information_lnn(input_values, labels, entropy):
+def __noise(mean=0, std=0.01):
+    return np.random.normal(mean, std, 1)[0]
+
+
+def __calculate_information_KSG(input_values, labels):
     data_x = input_values
     data_y = labels
 
-    def noise():
-        return np.random.normal(0, 0.01, 1)[0] # 0.7 ~= sqrt(0.5)
-    data_x = add_noise(input_values, noise)
-    data_y = add_noise(labels, noise)
+    data_x = add_noise(input_values, __noise)
+    data_y = add_noise(labels, __noise)
+
+    def information(activation):
+        data_t = activation
+        #e_t = [entropy(t) for t in data_t]
+
+        i_y_t = [wGao._KSG_mi(np.array([np.append(t, y) for t, y in zip(layer, data_y)]), split=len(layer[0])) for layer in data_t]
+        i_x_t = [wGao._KSG_mi(np.array([np.append(t, x) for t, x in zip(layer, data_x)]), split=len(layer[0])) for layer in data_t]
+        #i_t_x = [entropy(np.array([np.append(t, x) for t, x in zip(layer, data_x)])) for layer in data_t]
+        #i_x_t = e_x + e_t - e_t_x
+        #i_y_t = e_y + e_t - e_t_y
+
+        return i_x_t, i_y_t
+
+    return information
+
+
+def __calculate_information_wgao(input_values, labels, entropy):
+    data_x = input_values
+    data_y = labels
+
+    data_x = add_noise(input_values, __noise)
+    data_y = add_noise(labels, __noise)
 
     e_y = entropy(data_y)
     e_x = entropy(data_x)

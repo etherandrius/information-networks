@@ -62,8 +62,10 @@ def parameters():
     parser.add_argument('--mi_estimator',
                         '-mie', dest='mi_estimator', default="bins",
                         help="Choose what mutual information estimator to use available: {}, ".format(estimators) +
-                             "bins - method used by Tishby in his paper, "
+                             "bins - method used by Tishby in his paper, (bins == bins-30)"
+                             "bins-n - bins method but with n bins (ex. bins-10)"
                              "KDE - Kernel density estimator, "
+                             "KSG - KSG mutual information estimator"
                              "KL - Kozachenko-Leonenko estimator, "
                              "LNN_1, LNN_2 - Local nearest neighbour with order 1 or 2")
 
@@ -83,5 +85,5 @@ def parameters():
     if args.fab_base == "Fabricated":
         raise ValueError("Fabricated cannot be a base for Fabricated")
 
-    args.shape = list(map(int, args.shape.split(',')))
+    #args.shape = list(map(int, args.shape.split(',')))
     return Parameters(args)

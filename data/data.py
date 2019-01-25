@@ -76,16 +76,15 @@ def get_tishby(train_size):
 
 
 def filename(params, mie=None):
+    if mie is None:
+        mie = params.mi_estimator
     name = "ts-" + "{0:.0%}".format(params.train_size) + ","
     name += "e-" + str(params.epochs) + ","
     name += "_" + params.activation
     name += "_" + params.data_set + ","
     if params.data_set == 'Fabricated':
         name += "_d-" + str(params.fabricated.dim)
-    if mie is None:
-        name += "mie-" + str(params.mi_estimator) + ","
-    else:
-        name += "mie-" + str(mie) + ","
+    name += "mie-" + str(mie) + ","
     name += "bs-" + str(params.batch_size) + ","
     name += "s-" + str(params.skip) + ","
     name += "ns-" + str(params.shape)
