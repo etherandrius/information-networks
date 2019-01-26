@@ -14,14 +14,16 @@ def main():
         input_shape=x_train[0].shape, network_shape=params.shape, categories=categories, activation=params.activation)
 
     print("Training")
+    batch_size = params.batch_size if params.batch_size > 0 else len(x_train)
+    no_of_batches = (len(x_train) / batch_size) * params.epochs
     information_callback = CalculateInformationCallback(
-        model, data_set.information_calculator, data_set.x_full, params.skip, params.cores)
+        model, data_set.information_calculator, data_set.x_full, params.skip, params.cores, no_of_batches)
     model.fit(x_train, y_train,
-              batch_size=params.batch_size if params.batch_size > 0 else len(x_train),
+              batch_size=batch_size,
               callbacks=[information_callback],
               epochs=params.epochs,
               validation_data=(x_test, y_test),
-              verbose=1)
+              verbose=0)
 
     append = ",b-" + str(information_callback.batch)
     print("Saving data to files")

@@ -52,7 +52,7 @@ def parameters():
                         '-s', dest='skip', default=1,
                         type=int, help="Calculate information for every n'th mini-batch epoch")
 
-    parser.add_argument('--network_shape', '-ns', dest='shape', default="12,10,8,6,4,2,1", help='Shape of the DNN')
+    parser.add_argument('--network_shape', '-ns', dest='shape', default="12,10,8,6,4,2,1,2", help='Shape of the DNN')
 
     parser.add_argument('--cores',
                         '-c', dest='cores', default=multiprocessing.cpu_count(),
