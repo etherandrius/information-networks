@@ -11,29 +11,43 @@ def get_model_categorical(input_shape, network_shape, categories=2, activation='
     tf.logging.set_verbosity(tf.logging.ERROR)  # ignores warning caused by callbacks being expensive
     model = Sequential()
     network_shape = network_shape.split(',')
-    model.add(decode_layer(network_shape[0], activation, input_shape=input_shape))
 
-    for layer_spec in network_shape[1:-1]:
+    model.add(Dense(input_shape[0], activation=activation, input_shape=input_shape))
+
+    for layer_spec in network_shape:
         model.add(decode_layer(layer_spec, activation))
 
-    size, _, _ = decode_layer_spec(network_shape[-1], activation)
-    model.add(Dense(size, activation='softmax'))
+    model.add(Dense(categories, activation='softmax'))
 
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
 
-def decode_layer(spec, activation="tanh", input_shape=None):
-    size, layer, func = decode_layer_spec(spec, activation)
-    if layer == "Dense" or layer == "D":
-        if input_shape is None:
-            return Dense(size, activation=func)
-        else:
-            return Dense(size, activation=func, input_shape=input_shape)
-    elif layer == "Dropout" or layer == "Dr":
-        return Dropout()
-    elif layer == "BatchNormalization" or layer == "BN":
+def decode_layer(spec, activation="tanh"):
+    if spec == "Dropout" or spec == "Dr":
+        spec = spec.split('-')
+        dropout_rate = float(spec[1]) if len(spec) >= 2 else 0.2
+        return Dropout(rate=dropout_rate)
+    elif spec == "BatchNormalization" or spec == "BN":
         return BatchNormalization()
+    else:
+        spec = spec.split('-')
+        size = int(spec[0])
+        activation = spec[1] if len(spec) >= 2 else activation
+        return Dense(size, activation=activation)
+
+
+#def decode_layer(spec, activation="tanh", input_shape=None):
+#    size, layer, func = decode_layer_spec(spec, activation)
+#    if layer == "Dense" or layer == "D":
+#        if input_shape is None:
+#            return Dense(size, activation=func)
+#        else:
+#            return Dense(size, activation=func, input_shape=input_shape)
+#    elif layer == "Dropout" or layer == "Dr":
+#        return Dropout()
+#    elif layer == "BatchNormalization" or layer == "BN":
+#        return BatchNormalization()
 
 
 def decode_layer_spec(spec, activation="tanh"):

@@ -13,7 +13,7 @@ def main():
     model = networks.get_model_categorical(
         input_shape=x_train[0].shape, network_shape=params.shape, categories=categories, activation=params.activation)
 
-    print("Training")
+    print("Training and Calculating mutual information")
     batch_size = params.batch_size if params.batch_size > 0 else len(x_train)
     no_of_batches = (len(x_train) / batch_size) * params.epochs
     information_callback = CalculateInformationCallback(

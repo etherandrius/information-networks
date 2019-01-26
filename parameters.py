@@ -52,7 +52,10 @@ def parameters():
                         '-s', dest='skip', default=1,
                         type=int, help="Calculate information for every n'th mini-batch epoch")
 
-    parser.add_argument('--network_shape', '-ns', dest='shape', default="12,10,8,6,4,2,1,2", help='Shape of the DNN')
+    parser.add_argument('--network_shape', '-ns', dest='shape', default="10,8,6,4",
+                        help='Shape of the DNN, ex :'
+                        '12,Dr,10-tanh,8-relu,6-sigmoid,BN,2 , would represent a DNN shape where 1st layer is Dense of size 12, 2nd layer is a Dropout layer, 3rd layer is Dense with size 10 and tanh activation function, 5th is Dense with relu activation function,..., 7th is BatchNormalization layer,..., note: 0th and last layers are automatically created to fit the dataset'
+                        )
 
     parser.add_argument('--cores',
                         '-c', dest='cores', default=multiprocessing.cpu_count(),
@@ -75,15 +78,17 @@ def parameters():
 
     parser.add_argument('--fabricated_dimmensions',
                         '-fd', dest="fab_dim", default=2,
-                        type=int, help="only relevant if data_set=Fabricated, how many irrelevant dimmensions to add to the input for exmample if input is dimension d and -fd=2 new input will have dimmesnion d+2 ")
+                        type=int,
+                        help="only relevant if data_set=Fabricated, how many irrelevant dimmensions to add to the input for exmample if input is dimension d and -fd=2 new input will have dimmesnion d+2 ")
 
     parser.add_argument('--fabricated_base',
                         '-fb', dest="fab_base", default="Tishby",
-                        help="only relevant if data_set=Fabricated, what data set to use as a base for the fabricated data set default=Tishby, available: {}".format(data_sets[:-1]))
+                        help="only relevant if data_set=Fabricated, what data set to use as a base for the fabricated data set default=Tishby, available: {}".format(
+                            data_sets[:-1]))
 
     args = parser.parse_args()
     if args.fab_base == "Fabricated":
         raise ValueError("Fabricated cannot be a base for Fabricated")
 
-    #args.shape = list(map(int, args.shape.split(',')))
+    # args.shape = list(map(int, args.shape.split(',')))
     return Parameters(args)
