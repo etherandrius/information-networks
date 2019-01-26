@@ -7,7 +7,7 @@ class InformationProcessorFabricatedData(InformationProcessor):
         :param num_relevant_dim: how many dimensions are relevant input, if our x has 10 dimensions and
                                  num_relevant_dim = 2 then only first two of them are relevant others are irrelevant
         """
-        super().__init__(train, test, categories)
+        super().__init__(train, test, categories, mi_estimator=mi_estimator)
         x_train, y_train = train
         x_test, y_test = test
 

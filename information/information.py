@@ -6,7 +6,9 @@ supported_estimators = ["KL", "KSG", "KDE", "LNN_1", "LNN_2", "bins"]
 
 
 def calculate_information(input_values, labels, entropy):
-    if entropy.startswith("bins"):
+    if entropy is None or entropy == "None":
+        return lambda x: None
+    elif entropy.startswith("bins"):
         return nTishby.__calculate_information_binning(input_values, labels, entropy)
     elif entropy == "KSG":
         return __calculate_information_KSG(input_values, labels)
@@ -20,8 +22,6 @@ def calculate_information(input_values, labels, entropy):
         entropy = wGao.LNN_2_entropy
     elif entropy == "LNN_1":
         entropy = wGao.LNN_1_entropy
-    elif entropy is None or entropy == "None":
-        return lambda x: None
     else:
         raise ValueError("Unsuported mutual information estimator {}, available: {}".format(entropy, input_values))
 
