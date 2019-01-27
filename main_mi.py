@@ -27,7 +27,7 @@ def main():
 
     append = ",b-" + str(information_callback.batch)
     print("Saving data to files")
-    data_set.save(append=append + "_pickle")
+    data_set.save(append=append)
     print("Producing image")
     data_set.plot(append=append)
     print("Done")

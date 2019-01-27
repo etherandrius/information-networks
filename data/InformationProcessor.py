@@ -1,8 +1,9 @@
 import numpy as np
 import information.information as inf
 import _pickle
-from plot.plot import plot
+from plot.plot import plot_main, plot_bilayer, plot_movie
 from threading import Lock
+import time
 
 
 class InformationProcessor(object):
@@ -33,11 +34,16 @@ class InformationProcessor(object):
         self.__lock.release()
 
     def save(self, append=""):
-        _pickle.dump(self.mi, open("output/data/" + self.filename + append, 'wb'))
+        path = "output/data/" + self.filename + append + "_pickle"
+        _pickle.dump(self.mi, open(path, 'wb'))
 
     def plot(self, append="", show=False):
-        i_x_t, i_y_t = zip(*self.mi)
-        plot(i_x_t, i_y_t, "output/images/" + self.filename + append, show)
+        i_x_t, i_y_t, i_t_t = zip(*self.mi)
+        path = "output/images/" + self.filename + append
+        plot_main(i_x_t, i_y_t, path, show)
+        plot_bilayer(i_t_t, path + "_bilayer")
+
+
 
 
 

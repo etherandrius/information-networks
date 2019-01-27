@@ -1,6 +1,7 @@
 import numpy as np
 import information.WeihaoGao as wGao
 import information.NaftaliTishby as nTishby
+from utils import pairwise
 
 supported_estimators = ["KL", "KSG", "KDE", "LNN_1", "LNN_2", "bins"]
 
@@ -45,11 +46,13 @@ def __calculate_information_KSG(input_values, labels):
 
         i_y_t = [wGao._KSG_mi(np.array([np.append(t, y) for t, y in zip(layer, data_y)]), split=len(layer[0])) for layer in data_t]
         i_x_t = [wGao._KSG_mi(np.array([np.append(t, x) for t, x in zip(layer, data_x)]), split=len(layer[0])) for layer in data_t]
+        i_t_t = [wGao._KSG_mi(np.array([np.append(a, b) for a, b in zip(t0, t1)]), split=len(t0[0])) for t0, t1 in pairwise(data_t)]
+
         #i_t_x = [entropy(np.array([np.append(t, x) for t, x in zip(layer, data_x)])) for layer in data_t]
         #i_x_t = e_x + e_t - e_t_x
         #i_y_t = e_y + e_t - e_t_y
 
-        return i_x_t, i_y_t
+        return i_x_t, i_y_t, i_t_t
 
     return information
 
@@ -70,14 +73,16 @@ def __calculate_information_wgao(input_values, labels, entropy):
         # network training algorithm, adding noise only prevents entropy calculations from failing in situations when 5
         # points have the exact same values, then a division by zero is possible.
 
-        e_t = [entropy(t) for t in data_t]
-
+        e_t = np.array([entropy(t) for t in data_t])
         e_t_y = [entropy(np.array([np.append(t, y) for t, y in zip(layer, data_y)])) for layer in data_t]
         e_t_x = [entropy(np.array([np.append(t, x) for t, x in zip(layer, data_x)])) for layer in data_t]
+        e_t_t = np.array([entropy(np.array([np.append(a, b) for a, b in zip(t1, t2)])) for t1, t2 in pairwise(data_t)])
+
         i_x_t = e_x + e_t - e_t_x
         i_y_t = e_y + e_t - e_t_y
+        i_t_t = e_t[:-1] + e_t[1:] - e_t_t  # I(t0, t1) = H(t0) + H(t1) + H(t0, t1)
 
-        return i_x_t, i_y_t
+        return i_x_t, i_y_t, i_t_t
 
     return information
 

@@ -29,6 +29,11 @@ def __get_information_processor(data_set, mi_estimator, train_size, filename, fa
     if data_set == 'MNIST':
         train, test, cat = get_mnist(train_size)
         return InformationProcessor(train, test, cat, filename, mi_estimator)
+    elif data_set == "TEST":
+        train, test, cat = get_tishby(train_size)
+        train = train[0][:10], train[1][:10]
+        test = test[0][:10], test[1][:10]
+        return InformationProcessor(train, test, cat, filename, mi_estimator)
     elif data_set == "Tishby":
         train, test, cat = get_tishby(train_size)
         return InformationProcessor(train, test, cat, filename, mi_estimator)
