@@ -52,8 +52,8 @@ def plot_bilayer(series, filename=None, show=False):
     plt.cla()
 
 
-def plot_movie(data_x, data_y, filename=None, delta=0.6):
-    print("Producing information plane image")
+def plot_movie(data_x, data_y, args, filename=None):
+    print("Producing information plane movie")
     cmap = plt.get_cmap('gnuplot')
     colors = [cmap(i) for i in np.linspace(0, 1, len(data_x))]
     figure, ax = plt.subplots()
@@ -70,18 +70,20 @@ def plot_movie(data_x, data_y, filename=None, delta=0.6):
             plt.scatter(x1, y1, s=point_size, color=colors[ix], zorder=ix)
             plt.scatter(x2, y2, s=point_size, color=colors[ix], zorder=ix)
             text.set_x(ax.get_xlim()[1])
-            text.set_text("{}'th epoch  ".format(ix))
+            text.set_text("{}'th epoch  ".format((ix+1)*args.em))
         return figure
 
-    frames = __select_frames(data_x, data_y, delta=delta)
+    frames = __select_frames(data_x, data_y, delta=args.delta)
     movie = anim.FuncAnimation(figure, single_epoch, frames=frames)
 
     if filename is not None:
+        filename = filename + ".mp4"
         print("Saving movie to a file : ", filename)
         start = time.time()
-        Writer = anim.writers['ffmpeg']
-        writer = Writer(fps=4)
-        movie.save(filename + ".mp4", writer=writer, dpi=250)
+        fps = int(len(frames) / args.movie_length)
+        print("fps {}".format(fps))
+        writer = anim.writers['ffmpeg'](fps=fps)
+        movie.save(filename, writer=writer, dpi=250)
         end = time.time()
         print("Time taken to save to file {:.3f}s".format((end-start)))
     plt.cla()
