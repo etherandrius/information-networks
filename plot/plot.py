@@ -52,68 +52,68 @@ def plot_bilayer(series, filename=None, show=False):
     plt.cla()
 
 
-def plot_movie(data_x, data_y, filename=None, show=False):
-    print("Producing movie of the information plane")
-    cmap = plt.get_cmap('gnuplot')
-    colors = [cmap(i) for i in np.linspace(0, 1, len(data_x))]
-    figure = plt.figure()
-    plt.xlabel('I(X,T)')
-    plt.ylabel('I(Y,T)')
-
-    for ix in range(len(data_x)):
-        for e in pairwise(zip(data_x[ix], data_y[ix])):
-            (x1, y1), (x2, y2) = e
-            plt.plot((x1, x2), (y1, y2), color=colors[ix], alpha=0.9, linewidth=0.2, zorder=ix)
-            point_size = 300
-            plt.scatter(x1, y1, s=point_size, color=colors[ix], zorder=ix)
-            plt.scatter(x2, y2, s=point_size, color=colors[ix], zorder=ix)
-            figure.canvas.draw()
-            figure.canvas.flush_events()
-            plt.savefig("output/{}".format(ix), dpi=100)
-
-
-    if filename is not None:
-        print("Saving movie to a file : ", filename)
-        start = time.time()
-        plt.savefig(filename, dpi=1000)
-        end = time.time()
-        print("Time taken to save to file {:.3f}s".format((end-start)))
-    plt.cla()
-
-
-def plot_epoch(data_x, data_y, filename=None, show=False):
+def plot_movie(data_x, data_y, filename=None, delta=0.6):
     print("Producing information plane image")
     cmap = plt.get_cmap('gnuplot')
     colors = [cmap(i) for i in np.linspace(0, 1, len(data_x))]
-    figure = plt.figure()
+    figure, ax = plt.subplots()
     plt.xlabel('I(X,T)')
     plt.ylabel('I(Y,T)')
+    _, xmax = ax.get_xlim()
+    text = plt.text(xmax, 0, "0'th epoch  ", color='darkslategrey', horizontalalignment='right')
 
     def single_epoch(ix):
         for e in pairwise(zip(data_x[ix], data_y[ix])):
             (x1, y1), (x2, y2) = e
             plt.plot((x1, x2), (y1, y2), color=colors[ix], alpha=0.9, linewidth=0.2, zorder=ix)
-            point_size = 300
+            point_size = 50
             plt.scatter(x1, y1, s=point_size, color=colors[ix], zorder=ix)
             plt.scatter(x2, y2, s=point_size, color=colors[ix], zorder=ix)
-            figure.canvas.draw()
-            figure.canvas.flush_events()
+            text.set_x(ax.get_xlim()[1])
+            text.set_text("{}'th epoch  ".format(ix))
         return figure
 
-    movie = anim.FuncAnimation(figure, single_epoch, frames=20)
-    plt.show()
+    frames = __select_frames(data_x, data_y, delta=delta)
+    movie = anim.FuncAnimation(figure, single_epoch, frames=frames)
+
+    if filename is not None:
+        print("Saving movie to a file : ", filename)
+        start = time.time()
+        Writer = anim.writers['ffmpeg']
+        writer = Writer(fps=4)
+        movie.save(filename + ".mp4", writer=writer, dpi=250)
+        end = time.time()
+        print("Time taken to save to file {:.3f}s".format((end-start)))
+    plt.cla()
 
 
+def __select_frames(data_x, data_y, delta=0.6):
+    delta = delta * delta
+    assert(len(data_y) == len(data_x))
+    frames = list(range(10))
+    prev = frames[-1]
 
-    #if filename is not None:
-    #    print("Saving image to file : ", filename)
-    #    start = time.time()
-    #    plt.savefig(filename, dpi=1000)
-    #    end = time.time()
-    #    print("Time taken to save to file {:.3f}s".format((end-start)))
-    #if show:
-    #    plt.show()
-    #plt.cla()
+    def to_add(ia, ib):
+        dist = 0
+
+        def d2(x_a, y_a, x_b, y_b):
+            return (x_a-x_b)*(x_a-x_b) + (y_a-y_b)*(y_a-y_b)
+    
+        for (xa, ya), (xb, yb) in zip(zip(data_x[ia], data_y[ia]), zip(data_x[ib], data_y[ib])):
+            dist = max(dist, d2(xa, ya, xb, yb))
+    
+        return dist > delta
+
+    for i in range(frames[-1], len(data_x) - 10):
+        if to_add(prev, i):
+            frames.append(i)
+            prev = i
+
+    for i in range(len(data_x) - 10, len(data_x)):
+        frames.append(i)
+    return frames
+
+
 
 
 
