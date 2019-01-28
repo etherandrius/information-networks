@@ -4,6 +4,7 @@ import argparse
 import _pickle
 import numpy as np
 
+
 def main():
     args = params()
     # data -> epoch * (i_x_t, i_y_t, i_t_t)
