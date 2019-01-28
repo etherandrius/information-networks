@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 class CalculateInformationCallback(keras.callbacks.Callback):
 
-    def __init__(self, model, calc_information_func, x_test, skip, max_workers, no_of_batches):
+    def __init__(self, model, calc_information_func, x_test, distance, max_workers, no_of_batches):
         super().__init__()
         outputs = [layer.output for layer in model.layers]
         self.__functor = K.function([model.input, K.learning_phase()], outputs)
@@ -36,3 +36,6 @@ class CalculateInformationCallback(keras.callbacks.Callback):
     def on_train_end(self, logs=None):
         self.__thread_executor.shutdown()
         self.progress.close()
+
+    def _dist(self, ):
+

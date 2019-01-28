@@ -6,9 +6,9 @@ import tensorflow as tf
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.datasets import mnist
 from data.fabricated import get_fabricated
-from data.InformationProcessor import InformationProcessor
-from data.InfromationProcessorFabricatedData import InformationProcessorFabricatedData
-from data.InformationProcessorUnion import InformationProcessorUnion
+from information.Processor import InformationProcessor
+from information.ProcessorFabricatedData import InformationProcessorFabricatedData
+from information.ProcessorUnion import InformationProcessorUnion
 
 supported_data_sets = ["Tishby", "MNIST", "Fabricated"]
 

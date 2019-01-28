@@ -1,9 +1,8 @@
 import numpy as np
 import information.information as inf
 import _pickle
-from plot.plot import plot_main, plot_bilayer, plot_movie
+from plot.plot import plot_main, plot_bilayer
 from threading import Lock
-import time
 
 
 class InformationProcessor(object):
@@ -24,6 +23,7 @@ class InformationProcessor(object):
         self.categories = categories
         self.filename = filename
         self.mi = []
+        self.buffered_activations = []
         self.__lock = Lock()
         self.__calculator = inf.calculate_information(self.x_full, self.y_full, self.mi_estimator)
 
@@ -42,6 +42,17 @@ class InformationProcessor(object):
         path = "output/images/" + self.filename + append
         plot_main(i_x_t, i_y_t, path, show)
         plot_bilayer(i_t_t, path + "_bilayer")
+
+    def _f(self, activations, epoch_c):
+        i_prev = self.mi[-1]
+        i_curr = self.__calculate_information_binning(activations[-1]), epoch_c
+
+
+    def _distance(self, i_a, i_b):
+        i_x_t_a, i_y_t_a, i_t_t_a, _ = i_a 
+        i_x_t_b, i_y_t_b, i_t_t_b, _ = i_b 
+
+
 
 
 

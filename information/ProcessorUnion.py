@@ -1,4 +1,4 @@
-from data.InformationProcessor import InformationProcessor
+from information.Processor import InformationProcessor
 
 
 class InformationProcessorUnion(InformationProcessor):
