@@ -20,18 +20,18 @@ def get_probabilities(data):
 
 
 # low=inclusive, high=exclusive
-def bin_value(n, low=-1, high=1, batches=10):
-    e = (high - low) / batches
-    return max(min(int((n - low) / e), batches - 1), 0)
+def bin_value(n, low=-1, high=1, bins=10):
+    e = (high - low) / bins
+    return max(min(int((n - low) / e), bins - 1), 0)
 
 
-def bin_array(array, low=-1, high=1, batches=10):
+def bin_array(array, low=-1, high=1, bins=10):
     result = []
     for n in array:
         if isinstance(n, np.ndarray) or isinstance(n, list):
-            new_n = bin_array(n, low, high, batches)
+            new_n = bin_array(n, low, high, bins)
         else:
-            new_n = bin_value(n, low, high, batches)
+            new_n = bin_value(n, low, high, bins)
         result.append(new_n)
     return result
 
@@ -76,11 +76,7 @@ def __calculate_information_data(data_x, data_y):
     return mutual_information
 
 
-def __calculate_information_binning(input_values, labels, spec):
-    batches = 30
-    if "-" in spec:
-        _, batches = spec.split('-')
-        batches = int(batches)
+def __calculate_information_tishby(input_values, labels, bins=30):
 
     # activation layers*test_case*neuron -> value)
 
@@ -92,7 +88,10 @@ def __calculate_information_binning(input_values, labels, spec):
     def information(activation):
         data_t = activation
 
-        data_t = [np.asarray(bin_array(t, batches=batches)) for t in data_t]
+        if bins == -1:
+            data_t = [np.asarray(bin_array(t, bins=30)) for t in data_t]
+        else:
+            data_t = [np.asarray(bin_array(t, bins=bins)) for t in data_t]
 
         data_t = [binarize(t) for t in data_t]
 

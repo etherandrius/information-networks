@@ -20,28 +20,29 @@ def get_information_processor(params):
     fab = params.fabricated
     dt = params.delta
     c = params.cores
+    b = params.bins
     if ',' in params.mi_estimator:
-        ips = [__get_information_processor(ds, mie, ts, filename(params, mie), dt, c, fab) for mie in mi_e.split(',')]
+        ips = [__get_information_processor(ds, mie, ts, filename(params, mie), dt, c, b, fab) for mie in mi_e.split(',')]
         return InformationProcessorUnion(ips)
 
-    return __get_information_processor(ds, mi_e, ts, filename(params), dt, c, fab)
+    return __get_information_processor(ds, mi_e, ts, filename(params), dt, c, b, fab)
 
 
-def __get_information_processor(data_set, mi_estimator, train_size, filename, delta, max_workers, fabricated=None):
+def __get_information_processor(data_set, mi_estimator, train_size, fname, delta, max_workers, bins, fabricated=None):
     if data_set == 'MNIST':
         train, test, cat = get_mnist(train_size)
-        return InformationProcessor(train, test, cat, filename, mi_estimator, delta, max_workers)
+        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
     elif data_set == "TEST":
         train, test, cat = get_tishby(train_size)
         train = train[0][:10], train[1][:10]
         test = test[0][:10], test[1][:10]
-        return InformationProcessor(train, test, cat, filename, mi_estimator, delta, max_workers)
+        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
     elif data_set == "Tishby":
         train, test, cat = get_tishby(train_size)
-        return InformationProcessor(train, test, cat, filename, mi_estimator, delta, max_workers)
+        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
     elif data_set == "Fabricated":
         train, test, cat, rel = get_fabricated(load_data(fabricated.base, train_size), fabricated.dim)
-        return InformationProcessorFabricatedData(train, test, cat, rel, filename, mi_estimator, delta, max_workers)
+        return InformationProcessorFabricatedData(train, test, cat, rel, fname, mi_estimator, delta, max_workers)
     else:
         raise ValueError("Data set {} is not supported, supported data sets: {}"
                          .format(data_set, supported_data_sets))

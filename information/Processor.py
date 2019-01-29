@@ -8,7 +8,7 @@ from threading import Lock
 
 class InformationProcessor(object):
     def __init__(self, train, test, categories, filename=None, mi_estimator=None,
-            delta=0.05, max_workers=1):
+            delta=0.2, max_workers=4, bins=30):
         self.x_train, self.y_train = train
         self.x_test, self.y_test = test
         self.categories = categories
@@ -22,7 +22,7 @@ class InformationProcessor(object):
         self.__delta = delta
         self.__lock = Lock()
         self.__executor = BlockingThreadPoolExecutor(max_workers=max_workers)
-        self.__calculator = inf.calculate_information(self.x_full, self.y_full, mi_estimator)
+        self.__calculator = inf.calculate_information(self.x_full, self.y_full, mi_estimator, bins)
 
     def save(self, append=""):
         path = "output/data/" + self.__filename + append + "_pickle"

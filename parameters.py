@@ -15,6 +15,7 @@ class Parameters(object):
     def __init__(self, args):
         self.train_size = args.train_size
         self.batch_size = args.batch_size
+        self.bins = args.bins
         self.epochs = args.epochs
         self.delta = args.delta
         self.shape = args.shape
@@ -63,14 +64,17 @@ def parameters():
                         help='How many cores to use for mutual information computation defaults to number of cores on the machine')
 
     parser.add_argument('--mi_estimator',
-                        '-mie', dest='mi_estimator', default="bins",
+                        '-mie', dest='mi_estimator', default="Tishby",
                         help="Choose what mutual information estimator to use available: {}, ".format(estimators) +
-                             "bins - method used by Tishby in his paper, (bins == bins-30)"
-                             "bins-n - bins method but with n bins (ex. bins-10)"
+                             "Tishby - method used by Tishby in his paper, (bins == bins-30)"
                              "KDE - Kernel density estimator, "
                              "KSG - KSG mutual information estimator"
                              "KL - Kozachenko-Leonenko estimator, "
                              "LNN_1, LNN_2 - Local nearest neighbour with order 1 or 2")
+
+    parser.add_argument('--bins',
+                        '-b', dest='bins', default=-1, type=int,
+                        help="select number of bins to use for MIE's. -1 for no binning. Note: Tishby MIE requires binning and defaults to 30")
 
     parser.add_argument('--activation_function',
                         '-af', dest='activation', default="tanh",
