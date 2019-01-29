@@ -7,6 +7,12 @@ def main():
     args = params()
     # data -> epoch * (i_x_t, i_y_t, i_t_t)
     data = _pickle.load(open(args.input, 'rb'))
+    if args.old:
+        data1 = data
+        data = {}
+        for e, i in enumerate(data1):
+            data[15*e] = i
+
     plot_movie(data, args.movie_length, filename=args.output)
 
 
@@ -23,6 +29,10 @@ def params():
     parser.add_argument('--movie_length',
                         '-ml', dest='movie_length', default=40, type=int,
                         help='approx movie length in seconds')
+
+    parser.add_argument('--old',
+                        dest='old', default=2, type=int,
+                        help='1 - if data is from release 1.0, 2 - if later')
 
     args = parser.parse_args()
     args.output = output(args)

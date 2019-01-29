@@ -56,24 +56,26 @@ def plot_bilayer(series, filename=None, show=False):
 def plot_movie(data, movie_length, filename=None):
     print("Producing information plane movie")
     cmap = plt.get_cmap('gnuplot')
-    colors = [cmap(i) for i in np.linspace(0, 1, max(data.keys()))]
+    colors = [cmap(i) for i in np.linspace(0, 1, max(data.keys()) + 1)]
     figure, ax = plt.subplots()
     plt.xlabel('I(X,T)')
     plt.ylabel('I(Y,T)')
     _, xmax = ax.get_xlim()
-    text = plt.text(xmax, 0, "0'th epoch  ", color='darkslategrey', horizontalalignment='right')
+    ymin, _ = ax.get_ylim()
+    text = plt.text(xmax+0.4, ymin+0.4, "0'th epoch", color='darkslategrey', horizontalalignment='right')
 
     frames = sorted(data.keys())
 
     def single_epoch(ix):
         for e in pairwise(zip(data[frames[ix]][0], data[frames[ix]][1])):
             (x1, y1), (x2, y2) = e
-            plt.plot((x1, x2), (y1, y2), color=colors[ix], alpha=0.9, linewidth=0.2, zorder=ix)
+            plt.plot((x1, x2), (y1, y2), color=colors[frames[ix]], alpha=0.9, linewidth=0.2, zorder=ix)
             point_size = 50
-            plt.scatter(x1, y1, s=point_size, color=colors[ix], zorder=ix)
-            plt.scatter(x2, y2, s=point_size, color=colors[ix], zorder=ix)
-            text.set_x(ax.get_xlim()[1])
-            text.set_text("{}'th epoch  ".format(frames[ix]))
+            plt.scatter(x1, y1, s=point_size, color=colors[frames[ix]], zorder=ix)
+            plt.scatter(x2, y2, s=point_size, color=colors[frames[ix]], zorder=ix)
+            text.set_x(ax.get_xlim()[1]+0.4)
+            text.set_y(ax.get_ylim()[0]+0.4)
+            text.set_text("{}'th epoch".format(frames[ix]))
         return figure
 
     movie = anim.FuncAnimation(figure, single_epoch, frames=len(data))
