@@ -91,6 +91,5 @@ def filename(params, mie=None):
         name += "_d-" + str(params.fabricated.dim)
     name += "mie-" + str(mie) + ","
     name += "bs-" + str(params.batch_size) + ","
-    name += "s-" + str(params.skip) + ","
     name += "ns-" + str(params.shape)
     return name

@@ -2,7 +2,7 @@ from information.Processor import InformationProcessor
 
 
 class InformationProcessorFabricatedData(InformationProcessor):
-    def __init__(self, train, test, categories,  num_relevant_dim, filename=None, mi_estimator=None):
+    def __init__(self, train, test, categories, num_relevant_dim, filename=None, mi_estimator=None):
         """
         :param num_relevant_dim: how many dimensions are relevant input, if our x has 10 dimensions and
                                  num_relevant_dim = 2 then only first two of them are relevant others are irrelevant
@@ -21,9 +21,9 @@ class InformationProcessorFabricatedData(InformationProcessor):
         self._irrIP = InformationProcessor(
             (x_train_irr, y_train), (x_test_irr, y_test), categories, filename + "_irr", mi_estimator)
 
-    def information_calculator(self, activations):
-        self._relIP.information_calculator(activations)
-        self._irrIP.information_calculator(activations)
+    def calculate_information(self, activation, epoch):
+        self._relIP.calculate_information(activation, epoch)
+        self._irrIP.calculate_information(activation, epoch)
 
     def save(self, append=""):
         self._relIP.save(append=append)

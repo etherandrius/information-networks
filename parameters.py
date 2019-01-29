@@ -16,7 +16,7 @@ class Parameters(object):
         self.train_size = args.train_size
         self.batch_size = args.batch_size
         self.epochs = args.epochs
-        self.skip = args.skip
+        self.delta = args.delta
         self.shape = args.shape
         self.cores = args.cores
         self.data_set = args.data_set
@@ -48,9 +48,9 @@ def parameters():
                         '-e', dest='epochs', default=1500,
                         type=int, help='Number of times to scan the dataset for NN training')
 
-    parser.add_argument('--skip',
-                        '-s', dest='skip', default=1,
-                        type=int, help="Calculate information for every n'th mini-batch epoch")
+    parser.add_argument('--delta',
+                        '-d', dest='delta', default=0.2,
+                        type=float, help="Tolerance on how densely to calculate mutual information")
 
     parser.add_argument('--network_shape', '-ns', dest='shape', default="10,8,6,4",
                         help='Shape of the DNN, ex :'

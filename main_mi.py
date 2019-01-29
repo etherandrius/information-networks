@@ -17,7 +17,7 @@ def main():
     batch_size = params.batch_size if params.batch_size > 0 else len(x_train)
     no_of_batches = (len(x_train) / batch_size) * params.epochs
     information_callback = CalculateInformationCallback(
-        model, processor.information_calculator, processor.x_full, params.skip, params.cores, no_of_batches)
+        model, processor, processor.x_full, no_of_batches)
     model.fit(x_train, y_train,
               batch_size=batch_size,
               callbacks=[information_callback],

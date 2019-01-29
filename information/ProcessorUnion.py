@@ -16,9 +16,9 @@ class InformationProcessorUnion(InformationProcessor):
             ip.x_test = None
             ip.y_test = None
 
-    def information_calculator(self, activations):
+    def calculate_information(self, activation, epoch):
         for ip in self.ips:
-            ip.information_calculator(activations)
+            ip.calculate_information(activation, epoch)
 
     def save(self, append=""):
         for ip in self.ips:
