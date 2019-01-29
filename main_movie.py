@@ -1,25 +1,13 @@
 from plot.plot import plot_movie
-import sys
 import argparse
 import _pickle
-import numpy as np
-from utils import pairwise
 
 
 def main():
     args = params()
     # data -> epoch * (i_x_t, i_y_t, i_t_t)
     data = _pickle.load(open(args.input, 'rb'))
-    plot_movie(data, args, filename=args.output)
-
-
-def _dist(i_a, i_b):
-    d = max(
-        max(abs(i_a[0] - i_b[0])),
-        max(abs(i_a[1] - i_b[1])),
-        max(abs(i_a[2] - i_b[2])),
-    )
-    return d
+    plot_movie(data, args.movie_length, filename=args.output)
 
 
 def params():
@@ -31,10 +19,6 @@ def params():
     parser.add_argument('--output',
                         '-o', dest='output', default=None,
                         help='output movie file')
-
-    parser.add_argument('--delta',
-                        '-d', dest='delta', default=0.05, type=float,
-                        help='delta tuning skipping of epochs')
 
     parser.add_argument('--movie_length',
                         '-ml', dest='movie_length', default=40, type=int,

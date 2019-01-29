@@ -53,7 +53,7 @@ def plot_bilayer(series, filename=None, show=False):
     plt.cla()
 
 
-def plot_movie(data, args, filename=None):
+def plot_movie(data, movie_length, filename=None):
     print("Producing information plane movie")
     cmap = plt.get_cmap('gnuplot')
     colors = [cmap(i) for i in np.linspace(0, 1, max(data.keys()))]
@@ -82,7 +82,7 @@ def plot_movie(data, args, filename=None):
         filename = filename + ".mp4"
         print("Saving movie to a file : ", filename)
         start = time.time()
-        fps = max(3, int(len(data) / args.movie_length))
+        fps = max(3, int(len(data) / movie_length))
         print("fps {}".format(fps))
         writer = anim.writers['ffmpeg'](fps=fps)
         movie.save(filename, writer=writer, dpi=250)

@@ -18,7 +18,7 @@ class InformationProcessor(object):
         self.__filename = filename
         self.__global_prev = None
         self.__buffered_activations = []
-        self.__buffer_limit = 4
+        self.__buffer_limit = 1
         self.__delta = delta
         self.__lock = Lock()
         self.__executor = BlockingThreadPoolExecutor(max_workers=max_workers)
@@ -53,12 +53,11 @@ class InformationProcessor(object):
 
             # pre-compute next global_prev
             curr_activation, epoch_curr = activation_buffer[-1]
-            print("Potential : ", list(zip(*activation_buffer))[1])
 
             mi_curr = self.__calculator(curr_activation)
             self.__global_prev = mi_curr
             if _dist(local_prev, mi_curr) <= self.__delta:
-                self.__buffer_limit *= 2
+                self.__buffer_limit = min(int(self.__buffer_limit*2), 256)
             self.__lock.release()
             self.__executor.submit(self.__info_calc_entry, local_prev, mi_curr, epoch_curr, activation_buffer, [])
             return
@@ -72,11 +71,8 @@ class InformationProcessor(object):
     def __info_calc_entry(self, local_prev, mi_curr, epoch_curr, activation_buffer, carry):
         self._info_calc_inner_loop(local_prev, mi_curr, epoch_curr, activation_buffer, carry)
         with self.__lock:
-            print("Carry : ", end="")
             for epoch, mi in carry:
-                print(epoch, end=", ")
                 self.mi[epoch] = mi
-            print("")
 
     def __info_calc_loop(self, mi_prev, activation_buffer, carry):
         assert(len(activation_buffer) > 0)
