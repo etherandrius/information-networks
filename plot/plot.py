@@ -5,6 +5,7 @@ import time
 from tqdm import tqdm
 from utils import pairwise
 
+
 def plot_main(data_x, data_y, filename=None, show=False):
     print("Producing information plane image")
     cmap = plt.get_cmap('gnuplot')
@@ -52,35 +53,36 @@ def plot_bilayer(series, filename=None, show=False):
     plt.cla()
 
 
-def plot_movie(data_x, data_y, args, filename=None):
+def plot_movie(data, args, filename=None):
     print("Producing information plane movie")
     cmap = plt.get_cmap('gnuplot')
-    colors = [cmap(i) for i in np.linspace(0, 1, len(data_x))]
+    colors = [cmap(i) for i in np.linspace(0, 1, len(data))]
     figure, ax = plt.subplots()
     plt.xlabel('I(X,T)')
     plt.ylabel('I(Y,T)')
     _, xmax = ax.get_xlim()
     text = plt.text(xmax, 0, "0'th epoch  ", color='darkslategrey', horizontalalignment='right')
 
+    frames = sorted(data.keys())
+
     def single_epoch(ix):
-        for e in pairwise(zip(data_x[ix], data_y[ix])):
+        for e in pairwise(zip(data[frames[ix]][0], data[frames[ix]][1])):
             (x1, y1), (x2, y2) = e
             plt.plot((x1, x2), (y1, y2), color=colors[ix], alpha=0.9, linewidth=0.2, zorder=ix)
             point_size = 50
             plt.scatter(x1, y1, s=point_size, color=colors[ix], zorder=ix)
             plt.scatter(x2, y2, s=point_size, color=colors[ix], zorder=ix)
             text.set_x(ax.get_xlim()[1])
-            text.set_text("{}'th epoch  ".format((ix+1)*args.em))
+            text.set_text("{}'th epoch  ".format(frames[ix]))
         return figure
 
-    frames = __select_frames(data_x, data_y, delta=args.delta)
-    movie = anim.FuncAnimation(figure, single_epoch, frames=frames)
+    movie = anim.FuncAnimation(figure, single_epoch, frames=len(data))
 
     if filename is not None:
         filename = filename + ".mp4"
         print("Saving movie to a file : ", filename)
         start = time.time()
-        fps = int(len(frames) / args.movie_length)
+        fps = max(3, int(len(data) / args.movie_length))
         print("fps {}".format(fps))
         writer = anim.writers['ffmpeg'](fps=fps)
         movie.save(filename, writer=writer, dpi=250)
