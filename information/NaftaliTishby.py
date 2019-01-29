@@ -77,7 +77,6 @@ def __calculate_information_data(data_x, data_y):
 
 
 def __calculate_information_binning(input_values, labels, spec):
-
     batches = 30
     if "-" in spec:
         _, batches = spec.split('-')

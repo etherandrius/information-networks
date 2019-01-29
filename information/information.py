@@ -33,7 +33,7 @@ def __noise(mean=0, std=0.01):
     return np.random.normal(mean, std, 1)[0]
 
 
-def __calculate_information_KSG(input_values, labels):
+def __calculate_information_KSG(input_values, labels, bins=30):
     data_x = input_values
     data_y = labels
 
@@ -43,6 +43,9 @@ def __calculate_information_KSG(input_values, labels):
     def information(activation):
         data_t = activation
         #e_t = [entropy(t) for t in data_t]
+
+        if bins > 0:
+            data_t = [add_noise(np.asarray(nTishby.bin_array(t, batches=bins)), __noise) for t in data_t]
 
         i_y_t = [wGao._KSG_mi(np.array([np.append(t, y) for t, y in zip(layer, data_y)]), split=len(layer[0])) for layer in data_t]
         i_x_t = [wGao._KSG_mi(np.array([np.append(t, x) for t, x in zip(layer, data_x)]), split=len(layer[0])) for layer in data_t]
@@ -57,7 +60,7 @@ def __calculate_information_KSG(input_values, labels):
     return information
 
 
-def __calculate_information_wgao(input_values, labels, entropy):
+def __calculate_information_wgao(input_values, labels, entropy, bins=30):
     data_x = input_values
     data_y = labels
 
@@ -72,6 +75,9 @@ def __calculate_information_wgao(input_values, labels, entropy):
         data_t = activation  # don't think need to add noise to activations as they are produced randomly by the neural
         # network training algorithm, adding noise only prevents entropy calculations from failing in situations when 5
         # points have the exact same values, then a division by zero is possible.
+
+        if bins > 0:
+            data_t = [add_noise(np.asarray(nTishby.bin_array(t, batches=bins)), __noise) for t in data_t]
 
         e_t = np.array([entropy(t) for t in data_t])
         e_t_y = [entropy(np.array([np.append(t, y) for t, y in zip(layer, data_y)])) for layer in data_t]
