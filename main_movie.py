@@ -7,7 +7,7 @@ def main():
     args = params()
     # data -> epoch * (i_x_t, i_y_t, i_t_t)
     data = _pickle.load(open(args.input, 'rb'))
-    if args.old:
+    if args.old == 1:
         data1 = data
         data = {}
         for e, i in enumerate(data1):

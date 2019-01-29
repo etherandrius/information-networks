@@ -120,7 +120,6 @@ def KDE_entropy(x):
 	"""
 
     N = len(x)
-    d = len(x[0])
     local_est = np.zeros(N)
     for i in range(N):
         kernel = sst.gaussian_kde(x.transpose())
