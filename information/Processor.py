@@ -8,7 +8,7 @@ from threading import Lock
 
 class InformationProcessor(object):
     def __init__(self, train, test, categories, filename=None, mi_estimator=None,
-            delta=0.2, max_workers=1):
+            delta=0.05, max_workers=4):
         self.x_train, self.y_train = train
         self.x_test, self.y_test = test
         self.categories = categories
@@ -39,7 +39,6 @@ class InformationProcessor(object):
         print("A")
         self.__lock.acquire()
 
-        # very first entry
         if self.__global_prev is None:
             self.__global_prev = self.__calculator(activation)
             self.mi[epoch] = self.__global_prev
@@ -48,9 +47,7 @@ class InformationProcessor(object):
 
         self.__buffered_activations.append((activation, epoch))
         if len(self.__buffered_activations) >= self.__buffer_limit:
-            self.__lock.release()
             self.__executor.submit(self.__info_calc_entry)
-            return
         self.__lock.release()
 
     def finish_information_calculation(self):
@@ -59,7 +56,6 @@ class InformationProcessor(object):
         self.__executor.shutdown()
 
     def __info_calc_entry(self):
-        print("A")
         # with self.__lock:
         self.__lock.acquire()
         # copy and clear __buffered_activations
