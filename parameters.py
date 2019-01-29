@@ -58,7 +58,7 @@ def parameters():
                         )
 
     parser.add_argument('--cores',
-                        '-c', dest='cores', default=multiprocessing.cpu_count(),
+                        '-c', dest='cores', default=int(multiprocessing.cpu_count() / 2),
                         type=int,
                         help='How many cores to use for mutual information computation defaults to number of cores on the machine')
 
