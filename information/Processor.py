@@ -8,7 +8,7 @@ from threading import Lock
 
 class InformationProcessor(object):
     def __init__(self, train, test, categories, filename=None, mi_estimator=None,
-            delta=0.05, max_workers=4):
+            delta=0.05, max_workers=1):
         self.x_train, self.y_train = train
         self.x_test, self.y_test = test
         self.categories = categories
@@ -18,7 +18,7 @@ class InformationProcessor(object):
         self.__filename = filename
         self.__global_prev = None
         self.__buffered_activations = []
-        self.__buffer_limit = 1
+        self.__buffer_limit = 4
         self.__delta = delta
         self.__lock = Lock()
         self.__executor = BlockingThreadPoolExecutor(max_workers=max_workers)
@@ -36,9 +36,7 @@ class InformationProcessor(object):
         plot_bilayer(i_t_t, path + "_bilayer")
 
     def calculate_information(self, activation, epoch):
-        print("A")
         self.__lock.acquire()
-
         if self.__global_prev is None:
             self.__global_prev = self.__calculator(activation)
             self.mi[epoch] = self.__global_prev
@@ -47,7 +45,23 @@ class InformationProcessor(object):
 
         self.__buffered_activations.append((activation, epoch))
         if len(self.__buffered_activations) >= self.__buffer_limit:
-            self.__executor.submit(self.__info_calc_entry)
+            # copy and clear __buffered_activations
+            activation_buffer = self.__buffered_activations
+            self.__buffered_activations = []
+
+            local_prev = self.__global_prev
+
+            # pre-compute next global_prev
+            curr_activation, epoch_curr = activation_buffer[-1]
+            print("Potential : ", list(zip(*activation_buffer))[1])
+
+            mi_curr = self.__calculator(curr_activation)
+            self.__global_prev = mi_curr
+            if _dist(local_prev, mi_curr) <= self.__delta:
+                self.__buffer_limit *= 2
+            self.__lock.release()
+            self.__executor.submit(self.__info_calc_entry, local_prev, mi_curr, epoch_curr, activation_buffer, [])
+            return
         self.__lock.release()
 
     def finish_information_calculation(self):
@@ -55,31 +69,14 @@ class InformationProcessor(object):
             self.__executor.submit(self.__info_calc_entry)
         self.__executor.shutdown()
 
-    def __info_calc_entry(self):
-        # with self.__lock:
-        self.__lock.acquire()
-        # copy and clear __buffered_activations
-        activation_buffer = self.__buffered_activations
-        self.__buffered_activations = []
-
-        local_prev = self.__global_prev
-
-        # pre-compute next global_prev
-        curr_activation, epoch_curr = activation_buffer[-1]
-
-        mi_curr = self.__calculator(curr_activation)
-        self.__global_prev = mi_curr
-        if _dist(local_prev, mi_curr) <= self.__delta:
-            self.__buffer_limit *= 2
-        self.__lock.release()
-
-        carry = [(epoch_curr, mi_curr)]
+    def __info_calc_entry(self, local_prev, mi_curr, epoch_curr, activation_buffer, carry):
         self._info_calc_inner_loop(local_prev, mi_curr, epoch_curr, activation_buffer, carry)
-
-        self.__lock.acquire()
-        for epoch, mi in carry:
-            self.mi[epoch] = mi
-        self.__lock.release()
+        with self.__lock:
+            print("Carry : ", end="")
+            for epoch, mi in carry:
+                print(epoch, end=", ")
+                self.mi[epoch] = mi
+            print("")
 
     def __info_calc_loop(self, mi_prev, activation_buffer, carry):
         assert(len(activation_buffer) > 0)
@@ -100,8 +97,9 @@ class InformationProcessor(object):
 
 
 def _dist(i_a, i_b):
-    return max(
+    d = max(
         max(abs(i_a[0] - i_b[0])),
         max(abs(i_a[1] - i_b[1])),
         max(abs(i_a[2] - i_b[2])),
     )
+    return d

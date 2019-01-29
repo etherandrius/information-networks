@@ -21,16 +21,16 @@ def get_information_processor(params):
     dt = params.delta
     c = params.cores
     if ',' in params.mi_estimator:
-        ips = [__get_information_processor(ds, mie, ts, filename(params, mie), fab, dt, c) for mie in mi_e.split(',')]
+        ips = [__get_information_processor(ds, mie, ts, filename(params, mie), dt, c, fab) for mie in mi_e.split(',')]
         return InformationProcessorUnion(ips)
 
-    return __get_information_processor(ds, mi_e, ts, filename(params), fab, dt, c)
+    return __get_information_processor(ds, mi_e, ts, filename(params), dt, c, fab)
 
 
 def __get_information_processor(data_set, mi_estimator, train_size, filename, delta, max_workers, fabricated=None):
     if data_set == 'MNIST':
         train, test, cat = get_mnist(train_size)
-        return InformationProcessor(train, test, cat, filename, mi_estimator)
+        return InformationProcessor(train, test, cat, filename, mi_estimator, delta, max_workers)
     elif data_set == "TEST":
         train, test, cat = get_tishby(train_size)
         train = train[0][:10], train[1][:10]

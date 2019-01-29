@@ -56,7 +56,7 @@ def plot_bilayer(series, filename=None, show=False):
 def plot_movie(data, args, filename=None):
     print("Producing information plane movie")
     cmap = plt.get_cmap('gnuplot')
-    colors = [cmap(i) for i in np.linspace(0, 1, len(data))]
+    colors = [cmap(i) for i in np.linspace(0, 1, max(data.keys()))]
     figure, ax = plt.subplots()
     plt.xlabel('I(X,T)')
     plt.ylabel('I(Y,T)')

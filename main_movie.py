@@ -3,6 +3,7 @@ import sys
 import argparse
 import _pickle
 import numpy as np
+from utils import pairwise
 
 
 def main():
@@ -10,6 +11,15 @@ def main():
     # data -> epoch * (i_x_t, i_y_t, i_t_t)
     data = _pickle.load(open(args.input, 'rb'))
     plot_movie(data, args, filename=args.output)
+
+
+def _dist(i_a, i_b):
+    d = max(
+        max(abs(i_a[0] - i_b[0])),
+        max(abs(i_a[1] - i_b[1])),
+        max(abs(i_a[2] - i_b[2])),
+    )
+    return d
 
 
 def params():

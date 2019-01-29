@@ -49,7 +49,7 @@ def parameters():
                         type=int, help='Number of times to scan the dataset for NN training')
 
     parser.add_argument('--delta',
-                        '-d', dest='delta', default=0.2,
+                        '-d', dest='delta', default=0.1,
                         type=float, help="Tolerance on how densely to calculate mutual information")
 
     parser.add_argument('--network_shape', '-ns', dest='shape', default="10,8,6,4",
