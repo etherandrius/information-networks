@@ -2,6 +2,7 @@ import networks.networks as networks
 from parameters import *
 from information.CalculateInformationCallback import CalculateInformationCallback
 from data.data import get_information_processor
+import math
 
 
 def main():
@@ -15,7 +16,7 @@ def main():
 
     print("Training and Calculating mutual information")
     batch_size = min(params.batch_size, len(x_train)) if params.batch_size > 0 else len(x_train)
-    no_of_batches = (len(x_train) / batch_size) * params.epochs
+    no_of_batches = math.ceil(len(x_train) / batch_size) * params.epochs
     information_callback = CalculateInformationCallback(
         model, processor, processor.x_full, no_of_batches)
     model.fit(x_train, y_train,
