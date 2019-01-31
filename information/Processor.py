@@ -1,7 +1,7 @@
 import numpy as np
 import information.information as inf
 import _pickle
-from plot.plot import plot_main, plot_bilayer
+from plot.plot import plot_main
 from BlockingThreadPoolExecutor import BlockingThreadPoolExecutor
 from threading import Lock
 
@@ -33,7 +33,6 @@ class InformationProcessor(object):
         epochs, i_x_t, i_y_t, i_t_t = new_mi
         path = "output/images/" + self.__filename + append
         plot_main(i_x_t, i_y_t, path, show)
-        plot_bilayer(i_t_t, path + "_bilayer")
 
     def calculate_information(self, activation, epoch):
         self.__lock.acquire()
