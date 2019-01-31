@@ -89,9 +89,9 @@ def __calculate_information_tishby(input_values, labels, bins=30):
         data_t = activation
 
         if bins == -1:
-            data_t = [np.asarray(bin_array(t, bins=30)) for t in data_t]
+            data_t = [np.asarray(bin_array(t, bins=30, low=t.min(), high=t.max())) for t in data_t]
         else:
-            data_t = [np.asarray(bin_array(t, bins=bins)) for t in data_t]
+            data_t = [np.asarray(bin_array(t, bins=bins, low=t.min(), high=t.max())) for t in data_t]
 
         data_t = [binarize(t) for t in data_t]
 
