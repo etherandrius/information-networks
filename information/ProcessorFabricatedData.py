@@ -26,6 +26,10 @@ class InformationProcessorFabricatedData(InformationProcessor):
         self._relIP.calculate_information(activation, epoch)
         self._irrIP.calculate_information(activation, epoch)
 
+    def finish_information_calculation(self):
+        self._relIP.finish_information_calculation()
+        self._irrIP.finish_information_calculation()
+
     def save(self, append=""):
         self._relIP.save(append=append)
         self._irrIP.save(append=append)

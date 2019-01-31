@@ -9,7 +9,7 @@ class InformationProcessorUnion(InformationProcessor):
         test = ip.x_test, ip.y_test
         super().__init__(train, test, ip.categories)
         self.ips = ips
-        # clearing up some memory
+        # clearing up some memory - probably useless and unstable
         for ip in ips:
             ip.x_train = None
             ip.y_train = None
@@ -20,12 +20,16 @@ class InformationProcessorUnion(InformationProcessor):
         for ip in self.ips:
             ip.calculate_information(activation, epoch)
 
-    def save(self, append=""):
+    def finish_information_calculation(self):
         for ip in self.ips:
-            ip.save(append=append)
+            ip.finish_information_calculation()
+
+    def save(self, append=""):
+        for (i, ip) in enumerate(self.ips):
+            ip.save(append=append + "_{}".format(i))
 
     def plot(self, append="", show=False):
-        for ip in self.ips:
-            ip.plot(append=append, show=show)
+        for (i, ip) in enumerate(self.ips):
+            ip.plot(append=append + "_{}".format(i), show=show)
 
 
