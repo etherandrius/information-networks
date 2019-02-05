@@ -1,9 +1,10 @@
 import numpy as np
 import information.WeihaoGao as wGao
 import information.NaftaliTishby as nTishby
-from utils import pairwise
+import information.kde as kde
+from utils import pairwise, add_noise, noise
 
-supported_estimators = ["KL", "KSG", "KDE", "LNN_1", "LNN_2", "Tishby"]
+supported_estimators = ["KL", "KDE"]
 
 
 def calculate_information(input_values, labels, entropy, bins):
@@ -11,13 +12,15 @@ def calculate_information(input_values, labels, entropy, bins):
         return lambda x: None
     elif entropy.startswith("bins"):
         return nTishby.__calculate_information_tishby(input_values, labels, bins)
+    elif entropy == "KDE":
+        return kde.calculate_information_saxe(input_values, labels, bins)
     elif entropy == "KSG":
         return __calculate_information_KSG(input_values, labels. bins)
     elif entropy == "bins2":
         entropy = nTishby.bin_then_entropy
     elif entropy == "KL":
         entropy = wGao.KL_entropy
-    elif entropy == "KDE":
+    elif entropy == "bad-KDE":
         entropy = wGao.KDE_entropy
     elif entropy == "LNN_2":
         entropy = wGao.LNN_2_entropy
@@ -29,23 +32,20 @@ def calculate_information(input_values, labels, entropy, bins):
     return __calculate_information_wgao(input_values, labels, entropy, bins)
 
 
-def __noise(mean=0, std=0.01):
-    return np.random.normal(mean, std, 1)[0]
-
 
 def __calculate_information_KSG(input_values, labels, bins=30):
     data_x = input_values
     data_y = labels
 
-    data_x = add_noise(input_values, __noise)
-    data_y = add_noise(labels, __noise)
+    data_x = add_noise(input_values, noise)
+    data_y = add_noise(labels, noise)
 
     def information(activation):
         data_t = activation
         #e_t = [entropy(t) for t in data_t]
 
         if bins > 0:
-            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), __noise) for t in data_t]
+            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), noise) for t in data_t]
 
         i_y_t = [wGao._KSG_mi(np.array([np.append(t, y) for t, y in zip(layer, data_y)]), split=len(layer[0])) for layer in data_t]
         i_x_t = [wGao._KSG_mi(np.array([np.append(t, x) for t, x in zip(layer, data_x)]), split=len(layer[0])) for layer in data_t]
@@ -64,8 +64,8 @@ def __calculate_information_wgao(input_values, labels, entropy, bins=30):
     data_x = input_values
     data_y = labels
 
-    data_x = add_noise(input_values, __noise)
-    data_y = add_noise(labels, __noise)
+    data_x = add_noise(input_values, noise)
+    data_y = add_noise(labels, noise)
 
     e_y = entropy(data_y)
     e_x = entropy(data_x)
@@ -77,7 +77,7 @@ def __calculate_information_wgao(input_values, labels, entropy, bins=30):
         # points have the exact same values, then a division by zero is possible.
 
         if bins > 0:
-            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), __noise) for t in data_t]
+            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), noise) for t in data_t]
 
         e_t = np.array([entropy(t) for t in data_t])
         e_t_y = [entropy(np.array([np.append(t, y) for t, y in zip(layer, data_y)])) for layer in data_t]
@@ -91,19 +91,3 @@ def __calculate_information_wgao(input_values, labels, entropy, bins=30):
         return i_x_t, i_y_t, i_t_t
 
     return information
-
-
-# addding noise is necessary to prevent infinite MI (i.e prevents division by zero for some MI estimators)
-def add_noise(data, noise_function):
-    result = []
-    for n in data:
-        if isinstance(n, np.ndarray) or isinstance(n, list):
-            new_n = add_noise(n, noise_function)
-        else:
-            new_n = __add_noise_value(n, noise_function)
-        result.append(new_n)
-    return np.array(result)
-
-
-def __add_noise_value(n, noise_function):
-    return n + noise_function()

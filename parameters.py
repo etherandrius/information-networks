@@ -66,11 +66,8 @@ def parameters():
     parser.add_argument('--mi_estimator',
                         '-mie', dest='mi_estimator', default="Tishby",
                         help="Choose what mutual information estimator to use available: {}, ".format(estimators) +
-                             "Tishby - method used by Tishby in his paper, (bins == bins-30)"
-                             "KDE - Kernel density estimator, "
-                             "KSG - KSG mutual information estimator"
-                             "KL - Kozachenko-Leonenko estimator, "
-                             "LNN_1, LNN_2 - Local nearest neighbour with order 1 or 2")
+                             "Tishby - method used by Tishby in his paper, "
+                             "KDE - Kernel density estimator")
 
     parser.add_argument('--bins',
                         '-b', dest='bins', default=-1, type=int,

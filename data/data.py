@@ -2,15 +2,16 @@ import numpy as np
 import os
 import sys
 import scipy.io as sio
-import tensorflow as tf
+import keras
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.datasets import mnist
+from keras.datasets import mnist
 from data.fabricated import get_fabricated
 from information.Processor import InformationProcessor
 from information.ProcessorFabricatedData import InformationProcessorFabricatedData
 from information.ProcessorUnion import InformationProcessorUnion
 
 supported_data_sets = ["Tishby", "MNIST", "Fabricated"]
+__SEED__ = 2424
 
 
 def get_information_processor(params):
@@ -67,9 +68,9 @@ def get_mnist(train_size):
 
     data = data.reshape(data.shape[0], 28 * 28)
     data = data.astype('float32') / 255
-    labels = tf.keras.utils.to_categorical(labels)
+    labels = keras.utils.to_categorical(labels)
 
-    x_train, x_test, y_train, y_test = train_test_split(data, labels, train_size=train_size)
+    x_train, x_test, y_train, y_test = train_test_split(data, labels, train_size=train_size, random_state=__SEED__)
     return (x_train, y_train), (x_test, y_test), 10
 
 
@@ -79,7 +80,7 @@ def get_tishby(train_size):
     data = d['F']
     y = d['y']
     labels = np.squeeze(np.concatenate((y[None, :], 1 - y[None, :]), axis=0).T)
-    x_train, x_test, y_train, y_test = train_test_split(data, labels, train_size=train_size)
+    x_train, x_test, y_train, y_test = train_test_split(data, labels, train_size=train_size, random_state=__SEED__)
     return (x_train, y_train), (x_test, y_test), 2
 
 
@@ -94,5 +95,7 @@ def filename(params, mie=None):
         name += "_d-" + str(params.fabricated.dim)
     name += "mie-" + str(mie) + ","
     name += "bs-" + str(params.batch_size) + ","
+    if params.bins != 1:
+        name  += "b-" + str(params.bins) + ","
     name += "ns-" + str(params.shape)
     return name

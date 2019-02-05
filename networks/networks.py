@@ -1,14 +1,14 @@
-import tensorflow as tf
-from tensorflow.keras.layers import Dropout, Dense, BatchNormalization
-from tensorflow.keras import Sequential
-from tensorflow.keras.datasets import mnist
-from tensorflow.keras import backend as K
+import keras
+from keras.layers import Dropout, Dense, BatchNormalization
+from keras import Sequential
+from keras.datasets import mnist
+from keras import backend as K
 
 activation_functions = ["tanh, sigmoid, relu, linear"]
 
 
 def get_model_categorical(input_shape, network_shape, categories=2, activation='tanh'):
-    tf.logging.set_verbosity(tf.logging.ERROR)  # ignores warning caused by callbacks being expensive
+    #tf.logging.set_verbosity(tf.logging.ERROR)  # ignores warning caused by callbacks being expensive
     model = Sequential()
     network_shape = network_shape.split(',')
 
@@ -68,8 +68,8 @@ def train_the_model_get_distribution(random=42):
     x_train = x_train.astype('float32') / 255
     x_test = x_test.astype('float32') / 255
 
-    y_train = tf.keras.utils.to_categorical(y_train)
-    y_test = tf.keras.utils.to_categorical(y_test)
+    y_train = keras.utils.to_categorical(y_train)
+    y_test = keras.utils.to_categorical(y_test)
 
     model = Sequential()
     model.add(Dense(16, activation='tanh', input_shape=x_train[0].shape))

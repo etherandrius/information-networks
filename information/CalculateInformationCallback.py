@@ -1,5 +1,5 @@
-import tensorflow.keras as keras
-from tensorflow.keras import backend as K
+import keras as keras
+from keras import backend as K
 from tqdm import tqdm
 
 
