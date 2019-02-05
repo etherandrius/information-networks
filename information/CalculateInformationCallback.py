@@ -17,8 +17,9 @@ class CalculateInformationCallback(keras.callbacks.Callback):
     def on_batch_end(self, batch, logs=None):
         self.__progress.update(1)
         self.batch += 1
-        out = self.__functor([self.__x_test, 0.])
-        self.__ip.calculate_information(out, self.batch)
+        if self.batch % 16 == 0:
+            out = self.__functor([self.__x_test, 0.])
+            self.__ip.calculate_information(out, self.batch)
 
     def on_train_end(self, logs=None):
         self.__ip.finish_information_calculation()

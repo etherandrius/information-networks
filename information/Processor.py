@@ -56,7 +56,7 @@ class InformationProcessor(object):
             mi_curr = self.__calculator(curr_activation)
             self.__global_prev = mi_curr
             if _dist(local_prev, mi_curr) <= self.__delta:
-                self.__buffer_limit = min(self.__buffer_limit*2, 256)
+                self.__buffer_limit = min(self.__buffer_limit*2, 32)
             self.__lock.release()
             self.__executor.submit(self.__info_calc_entry, local_prev, mi_curr, epoch_curr, activation_buffer, [])
             return
