@@ -88,6 +88,12 @@ def plot_movie(data, movie_length, filename=None):
 
 
 def __select_frames(data_x, data_y, delta=0.6):
+    """
+    :param data_x: array of point`s x
+    :param data_y: array of points`s y
+    :param delta: distance
+    :return: returns list of consecutive points with distance > delta.
+    """
     delta = delta * delta
     assert(len(data_y) == len(data_x))
     frames = list(range(10))
