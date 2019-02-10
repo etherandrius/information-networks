@@ -1,6 +1,7 @@
 import keras.backend as K
 import information.NaftaliTishby as nTishby
 from utils import add_noise, noise
+from tqdm import tqdm
 
 import numpy as np
 
@@ -71,6 +72,8 @@ def calculate_information_saxe(input_values, labels, bins=-1):
 
     nats2bits = 1.0 / np.log(2)
 
+    print("Setup complete - for information function")
+
     def information(activation):
         # data_t = [add_noise(a, noise) for a in activation]
         data_t = activation  
@@ -79,8 +82,10 @@ def calculate_information_saxe(input_values, labels, bins=-1):
         # calculations from failing in situations when 5 points have the exact
         # same values, then a division by zero is possible.
 
+        print("Binning...")
         if bins > 0:
-            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), noise) for t in data_t]
+            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), noise) for t in tqdm(data_t)]
+        print("Binning done")
 
         def info(t):
             h_t = entropy_func_upper([t,])[0]
@@ -92,7 +97,9 @@ def calculate_information_saxe(input_values, labels, bins=-1):
             h_t_given_y
             return nats2bits * (h_t - h_t_given_x), nats2bits * (h_t - h_t_given_y)
 
-        I = [(*info(t), 0) for t in data_t]
+        print("Calculating I")
+        I = [(*info(t), 0) for t in tqdm(data_t)]
+        print("Calculating I done")
         return np.array(list(zip(*I)))
 
 
