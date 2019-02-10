@@ -33,6 +33,11 @@ def __get_information_processor(data_set, mi_estimator, train_size, fname, delta
     if data_set == 'MNIST':
         train, test, cat = get_mnist(train_size)
         return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
+    elif data_set == 'MNIST-TEST':
+        train, test, cat = get_mnist(train_size)
+        train = train[0][:10], train[1][:10]
+        test = test[0][:10], test[1][:10]
+        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
     elif data_set == "TEST":
         train, test, cat = get_tishby(train_size)
         train = train[0][:10], train[1][:10]
