@@ -5,7 +5,6 @@ import scipy.io as sio
 import keras
 from sklearn.model_selection import train_test_split
 from keras.datasets import mnist
-from data.fabricated import get_fabricated
 from information.Processor import InformationProcessor
 from information.ProcessorFabricatedData import InformationProcessorFabricatedData
 from information.ProcessorUnion import InformationProcessorUnion
@@ -33,6 +32,12 @@ def __get_information_processor(data_set, mi_estimator, train_size, fname, delta
     if data_set == 'MNIST':
         train, test, cat = get_mnist(train_size)
         return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
+    elif data_set == "Tishby":
+        train, test, cat = get_tishby(train_size)
+        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
+    elif data_set == "Fabricated":
+        train, test, cat, rel = get_fabricated(load_data(fabricated.base, train_size), fabricated.dim)
+        return InformationProcessorFabricatedData(train, test, cat, rel, fname, mi_estimator, delta, max_workers)
     elif data_set == 'MNIST-TEST':
         train, test, cat = get_mnist(train_size)
         train = train[0][:10], train[1][:10]
@@ -43,12 +48,6 @@ def __get_information_processor(data_set, mi_estimator, train_size, fname, delta
         train = train[0][:10], train[1][:10]
         test = test[0][:10], test[1][:10]
         return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
-    elif data_set == "Tishby":
-        train, test, cat = get_tishby(train_size)
-        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
-    elif data_set == "Fabricated":
-        train, test, cat, rel = get_fabricated(load_data(fabricated.base, train_size), fabricated.dim)
-        return InformationProcessorFabricatedData(train, test, cat, rel, fname, mi_estimator, delta, max_workers)
     else:
         raise ValueError("Data set {} is not supported, supported data sets: {}"
                          .format(data_set, supported_data_sets))
@@ -87,6 +86,24 @@ def get_tishby(train_size):
     labels = np.squeeze(np.concatenate((y[None, :], 1 - y[None, :]), axis=0).T)
     x_train, x_test, y_train, y_test = train_test_split(data, labels, train_size=train_size, random_state=__SEED__)
     return (x_train, y_train), (x_test, y_test), 2
+
+
+def get_fabricated(base_data, irr):
+    (x_train, y_train), (x_test, y_test), categories = base_data
+    rel = x_train[0].shape[0]
+
+    x_train = np.array([np.array(np.append(x, __random(irr))) for x in x_train])
+    x_test = np.array([np.array(np.append(x, __random(irr))) for x in x_test])
+
+    return (x_train, y_train), (x_test, y_test), categories, rel
+
+
+def __random(dim):
+    m = np.random.random_integers(0, dim)
+    arr = np.ones(dim)
+    arr[:m] = 0
+    np.random.shuffle(arr)
+    return arr
 
 
 def filename(params, mie=None):
