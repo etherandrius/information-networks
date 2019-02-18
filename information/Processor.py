@@ -1,5 +1,3 @@
-import numpy as np
-import information.information as inf
 import _pickle
 from plot.plot import plot_main
 from BlockingThreadPoolExecutor import BlockingThreadPoolExecutor
@@ -10,31 +8,22 @@ class InformationProcessor(object):
     """
     Contains the logic for which epochs to calculate Mutual Information
     """
-    def __init__(self, train, test, categories, filename=None, mi_estimator=None,
-            delta=0.2, max_workers=4, bins=30):
-        self.x_train, self.y_train = train
-        self.x_test, self.y_test = test
-        self.categories = categories
-        self.x_full = np.concatenate((self.x_train, self.x_test))
-        self.y_full = np.concatenate((self.y_train, self.y_test))
+    def __init__(self, information_calculator, buffer_limit=1, delta=0.2, max_workers=4):
         self.mi = {}
-        self.__filename = filename
         self.__global_prev = None
         self.__buffered_activations = []
-        self.__buffer_limit = 1
+        self.__buffer_limit = buffer_limit
         self.__delta = delta
         self.__lock = Lock()
+        self.__calculator = information_calculator
         self.__executor = BlockingThreadPoolExecutor(max_workers=max_workers)
-        self.__calculator = inf.calculate_information(self.x_full, self.y_full, mi_estimator, bins)
 
-    def save(self, append=""):
-        path = "output/data/" + self.__filename + append + "_pickle"
+    def save(self, path):
         _pickle.dump(self.mi, open(path, 'wb'))
 
-    def plot(self, append="", show=False):
+    def plot(self, path, show=False):
         new_mi = list(zip(*map(lambda el: (el[0], *el[1]), self.mi.items())))
         epochs, i_x_t, i_y_t, i_t_t = new_mi
-        path = "output/images/" + self.__filename + append
         plot_main(i_x_t, i_y_t, path, show)
 
     def calculate_information(self, activation, epoch):

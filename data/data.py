@@ -5,61 +5,21 @@ import scipy.io as sio
 import keras
 from sklearn.model_selection import train_test_split
 from keras.datasets import mnist
-from information.Processor import InformationProcessor
-from information.ProcessorFabricatedData import InformationProcessorFabricatedData
-from information.ProcessorUnion import InformationProcessorUnion
 
-supported_data_sets = ["Tishby", "MNIST", "Fabricated"]
+supported_data_sets = ["Tishby", "MNIST"]
 __SEED__ = 2424
 
 
-def get_information_processor(params):
-    ds = params.data_set
-    mi_e = params.mi_estimator
-    ts = params.train_size
-    fab = params.fabricated
-    dt = params.delta
-    c = params.cores
-    b = params.bins
-    if ',' in params.mi_estimator:
-        ips = [__get_information_processor(ds, mie, ts, filename(params, mie), dt, c, b, fab) for mie in mi_e.split(',')]
-        return InformationProcessorUnion(ips)
-
-    return __get_information_processor(ds, mi_e, ts, filename(params), dt, c, b, fab)
-
-
-def __get_information_processor(data_set, mi_estimator, train_size, fname, delta, max_workers, bins, fabricated=None):
-    if data_set == 'MNIST':
-        train, test, cat = get_mnist(train_size)
-        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
-    elif data_set == "Tishby":
-        train, test, cat = get_tishby(train_size)
-        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
-    elif data_set == "Fabricated":
-        train, test, cat, rel = get_fabricated(load_data(fabricated.base, train_size), fabricated.dim)
-        return InformationProcessorFabricatedData(train, test, cat, rel, fname, mi_estimator, delta, max_workers)
-    elif data_set == 'MNIST-TEST':
-        train, test, cat = get_mnist(train_size)
-        train = train[0][:10], train[1][:10]
-        test = test[0][:10], test[1][:10]
-        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
-    elif data_set == "TEST":
-        train, test, cat = get_tishby(train_size)
-        train = train[0][:10], train[1][:10]
-        test = test[0][:10], test[1][:10]
-        return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
-    else:
-        raise ValueError("Data set {} is not supported, supported data sets: {}"
-                         .format(data_set, supported_data_sets))
-
-
-def load_data(data_set, train_size, fabricated=None):
+def load_data(data_set, train_size):
     if data_set == 'MNIST':
         return get_mnist(train_size)
     elif data_set == "Tishby":
         return get_tishby(train_size)
-    elif data_set == "Fabricated":
-        return get_fabricated(load_data(fabricated.base, train_size), fabricated.dim)
+    elif data_set == "TEST":
+        train, test, cat = get_tishby(train_size)
+        train = train[0][:100], train[1][:100]
+        test = test[0][:100], test[1][:100]
+        return train, test, cat
     else:
         raise ValueError("Data set {} is not supported, supported data sets: {}"
                          .format(data_set, supported_data_sets))
@@ -88,36 +48,9 @@ def get_tishby(train_size):
     return (x_train, y_train), (x_test, y_test), 2
 
 
-def get_fabricated(base_data, irr):
-    (x_train, y_train), (x_test, y_test), categories = base_data
-    rel = x_train[0].shape[0]
-
-    x_train = np.array([np.array(np.append(x, __random(irr))) for x in x_train])
-    x_test = np.array([np.array(np.append(x, __random(irr))) for x in x_test])
-
-    return (x_train, y_train), (x_test, y_test), categories, rel
-
-
 def __random(dim):
     m = np.random.random_integers(0, dim)
     arr = np.ones(dim)
     arr[:m] = 0
     np.random.shuffle(arr)
     return arr
-
-
-def filename(params, mie=None):
-    if mie is None:
-        mie = params.mi_estimator
-    name = "ts-" + "{0:.0%}".format(params.train_size) + ","
-    name += "e-" + str(params.epochs) + ","
-    name += "_" + params.activation
-    name += "_" + params.data_set + ","
-    if params.data_set == 'Fabricated':
-        name += "_d-" + str(params.fabricated.dim)
-    name += "mie-" + str(mie) + ","
-    name += "bs-" + str(params.batch_size) + ","
-    if params.bins != 1:
-        name  += "b-" + str(params.bins) + ","
-    name += "ns-" + str(params.shape)
-    return name

@@ -4,13 +4,13 @@ import information.NaftaliTishby as nTishby
 import information.kde as kde
 from utils import pairwise, add_noise, noise
 
-supported_estimators = ["KL", "KDE"]
+supported_estimators = ["Tishby", "KDE"]
 
 
-def calculate_information(input_values, labels, entropy, bins):
+def get_information_calculator(input_values, labels, entropy, bins):
     if entropy is None or entropy == "None":
         return lambda x: None
-    elif entropy.startswith("bins"):
+    elif entropy == "bins" or entropy == "Tishby":
         return nTishby.__calculate_information_tishby(input_values, labels, bins)
     elif entropy == "KDE":
         return kde.calculate_information_saxe(input_values, labels, bins)
@@ -30,7 +30,6 @@ def calculate_information(input_values, labels, entropy, bins):
         raise ValueError("Unsuported mutual information estimator {}, available: {}".format(entropy, input_values))
 
     return __calculate_information_wgao(input_values, labels, entropy, bins)
-
 
 
 def __calculate_information_KSG(input_values, labels, bins=30):

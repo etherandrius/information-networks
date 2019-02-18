@@ -1,5 +1,4 @@
 import numpy as np
-from joblib import Parallel, delayed
 from utils import pairwise
 
 
@@ -98,11 +97,6 @@ def __calculate_information_tishby(input_values, labels, bins=30):
         h_t = np.array([entropy_of_data(t) for t in data_t])
         h_t_x = np.array([__conditional_entropy(t, data_x) for t in data_t])
         h_t_y = np.array([__conditional_entropy(t, data_y) for t in data_t])
-
-        #h_t = Parallel(n_jobs=4)(delayed(entropy_of_data)(t) for t in data_t)
-        #h_t_x = Parallel(n_jobs=4)(delayed(__conditional_entropy)(t, data_x) for t in data_t)
-        #h_t_y = Parallel(n_jobs=4)(delayed(__conditional_entropy)(t, data_y) for t in data_t)
-        #h_t_t = Parallel(n_jobs=4)(delayed(__conditional_entropy)(t1, t2) for (t1, t2) in pairwise(data_t))
 
         h_t_t = np.array([__conditional_entropy(t1, t2) for (t1, t2) in pairwise(data_t)])
 
