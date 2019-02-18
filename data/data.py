@@ -35,8 +35,8 @@ def __get_information_processor(data_set, mi_estimator, train_size, fname, delta
         return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
     elif data_set == 'MNIST-TEST':
         train, test, cat = get_mnist(train_size)
-        train = train[0][:30000], train[1][:30000]
-        test = test[0][:30000], test[1][:30000]
+        train = train[0][:30], train[1][:30]
+        test = test[0][:30], test[1][:30]
         print("LENRKS  : ", len(test[0]) + len(train[0]))
         return InformationProcessor(train, test, cat, fname, mi_estimator, delta, max_workers, bins)
     elif data_set == "TEST":
