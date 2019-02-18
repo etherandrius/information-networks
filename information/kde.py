@@ -66,9 +66,6 @@ def calculate_information_saxe(input_values, labels, bins=-1):
 
     labelprobs = np.mean(data_y, axis=0)
 
-    #data_x = add_noise(input_values, noise)
-    #data_y = add_noise(labels, noise)
-
     nats2bits = 1.0 / np.log(2)
 
     def information(activation):
@@ -92,16 +89,8 @@ def calculate_information_saxe(input_values, labels, bins=-1):
             h_t_given_y
             return nats2bits * (h_t - h_t_given_x), nats2bits * (h_t - h_t_given_y)
 
-        I = [(*info(t), 0) for t in data_t]
-        return np.array(list(zip(*I)))
-
-
-        #h_t = np.array([entropy_func_upper([t,])[0] for t in data_t])
-        #h_t_given_x = np.array([kde_condentropy(t, noise_variance) for t in data_t])
-
-
-
-        #return i_x_t, i_y_t, [0]
+        mutual_information = [(*info(t), 0) for t in data_t]
+        return np.array(list(zip(*mutual_information)))
 
     return information
 
