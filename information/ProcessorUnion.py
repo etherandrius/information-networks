@@ -4,16 +4,8 @@ from information.Processor import InformationProcessor
 class InformationProcessorUnion(InformationProcessor):
     def __init__(self, ips):
         assert(len(ips) > 0)
-        ip = ips[0]
-        train = ip.x_train, ip.y_train
-        test = ip.x_test, ip.y_test
-        super().__init__(train, test, ip.categories)
+        super().__init__(None)
         self.ips = ips
-        for ip in ips:
-            ip.x_train = None
-            ip.y_train = None
-            ip.x_test = None
-            ip.y_test = None
 
     def calculate_information(self, activation, epoch):
         for ip in self.ips:
@@ -23,12 +15,12 @@ class InformationProcessorUnion(InformationProcessor):
         for ip in self.ips:
             ip.finish_information_calculation()
 
-    def save(self, append=""):
+    def save(self, path):
         for (i, ip) in enumerate(self.ips):
-            ip.save(append=append + "_{}".format(i))
+            ip.save(path=path + "_{}".format(i))
 
-    def plot(self, append="", show=False):
+    def plot(self, path, show=False):
         for (i, ip) in enumerate(self.ips):
-            ip.plot(append=append + "_{}".format(i), show=show)
+            ip.plot(path=path + "_{}".format(i), show=show)
 
 
