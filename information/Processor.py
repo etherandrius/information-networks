@@ -7,6 +7,9 @@ from threading import Lock
 
 
 class InformationProcessor(object):
+    """
+    Contains the logic for which epochs to calculate Mutual Information
+    """
     def __init__(self, train, test, categories, filename=None, mi_estimator=None,
             delta=0.2, max_workers=4, bins=30):
         self.x_train, self.y_train = train
@@ -92,6 +95,14 @@ class InformationProcessor(object):
 
 
 def _dist(i_a, i_b):
+    """
+    Just a random distance metric used to decide if to compute mutual
+    information for nearby epochs
+
+    :param i_a: information for epoch a 
+    :param i_b: information for epoch b
+    :return: some notion of distance 
+    """
     d = max(
         max(abs(i_a[0] - i_b[0])),
         max(abs(i_a[1] - i_b[1])),

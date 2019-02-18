@@ -5,8 +5,9 @@ class InformationProcessorFabricatedData(InformationProcessor):
     def __init__(self, train, test, categories, num_relevant_dim, filename=None, mi_estimator=None, delta=0.2,
                  max_workers=2, bins=30):
         """
-        :param num_relevant_dim: how many dimensions are relevant input, if our x has 10 dimensions and
-                                 num_relevant_dim = 2 then only first two of them are relevant others are irrelevant
+        :param num_relevant_dim: how many dimensions are relevant input, if our
+        x has 10 dimensions and num_relevant_dim = 2 then only first two of
+        them are relevant others are irrelevant
         """
         super().__init__(train, test, categories, mi_estimator=mi_estimator)
         x_train, y_train = train

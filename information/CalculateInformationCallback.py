@@ -4,6 +4,9 @@ from tqdm import tqdm
 
 
 class CalculateInformationCallback(keras.callbacks.Callback):
+    """
+    Calls informationProcessor to calculate mutual information per batch
+    """
     def __init__(self, model, information_processor, x_test, no_of_batches, progress_bar=True):
         super().__init__()
         outputs = [layer.output for layer in model.layers]

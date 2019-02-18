@@ -9,7 +9,6 @@ class InformationProcessorUnion(InformationProcessor):
         test = ip.x_test, ip.y_test
         super().__init__(train, test, ip.categories)
         self.ips = ips
-        # clearing up some memory - probably useless and unstable
         for ip in ips:
             ip.x_train = None
             ip.y_train = None
