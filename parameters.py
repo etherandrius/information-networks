@@ -1,14 +1,7 @@
 import argparse
-import multiprocessing
 from information.information import supported_estimators as estimators
 from data.data import supported_data_sets as data_sets
 from networks.networks import activation_functions as functions
-
-
-class Fabricated(object):
-    def __init__(self, args):
-        self.dim = args.fab_dim
-        self.base = args.fab_base
 
 
 class Parameters(object):
@@ -23,7 +16,6 @@ class Parameters(object):
         self.data_set = args.data_set
         self.mi_estimator = args.mi_estimator
         self.activation = args.activation
-        self.fabricated = Fabricated(args)
 
 
 def parameters():
@@ -59,9 +51,9 @@ def parameters():
                         )
 
     parser.add_argument('--cores',
-                        '-c', dest='cores', default=int(multiprocessing.cpu_count() / 2),
+                        '-c', dest='cores', default=1,
                         type=int,
-                        help='How many cores to use for mutual information computation defaults to number of cores on the machine')
+                        help='number of information instances to compute at a time')
 
     parser.add_argument('--mi_estimator',
                         '-mie', dest='mi_estimator', default="Tishby",
@@ -77,19 +69,6 @@ def parameters():
                         '-af', dest='activation', default="tanh",
                         help="Choose what neural network activation function to use available: {}".format(functions))
 
-    parser.add_argument('--fabricated_dimmensions',
-                        '-fd', dest="fab_dim", default=2,
-                        type=int,
-                        help="only relevant if data_set=Fabricated, how many irrelevant dimmensions to add to the input for exmample if input is dimension d and -fd=2 new input will have dimmesnion d+2 ")
-
-    parser.add_argument('--fabricated_base',
-                        '-fb', dest="fab_base", default="Tishby",
-                        help="only relevant if data_set=Fabricated, what data set to use as a base for the fabricated data set default=Tishby, available: {}".format(
-                            data_sets[:-1]))
-
     args = parser.parse_args()
-    if args.fab_base == "Fabricated":
-        raise ValueError("Fabricated cannot be a base for Fabricated")
-
     # args.shape = list(map(int, args.shape.split(',')))
     return Parameters(args)
