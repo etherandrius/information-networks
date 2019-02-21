@@ -16,9 +16,9 @@ def load_data(data_set, train_size):
     elif data_set == "Tishby":
         return get_tishby(train_size)
     elif data_set == "TEST":
-        train, test, cat = get_tishby(train_size)
-        train = train[0][:100], train[1][:100]
-        test = test[0][:100], test[1][:100]
+        train, test, cat = get_mnist(train_size)
+        train = train[0][:1000], train[1][:1000]
+        test = test[0][:1000], test[1][:1000]
         return train, test, cat
     else:
         raise ValueError("Data set {} is not supported, supported data sets: {}"

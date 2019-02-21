@@ -76,8 +76,10 @@ def calculate_information_saxe(input_values, labels, bins=-1):
         # calculations from failing in situations when 5 points have the exact
         # same values, then a division by zero is possible.
 
+        print("BINNNING START")
         if bins > 0:
             data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), noise) for t in data_t]
+        print("BINNNING DONE")
 
         def info(t):
             h_t = entropy_func_upper([t,])[0]
