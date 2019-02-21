@@ -1,6 +1,6 @@
 import keras.backend as K
 import information.NaftaliTishby as nTishby
-from utils import add_noise, noise
+from utils import add_noise
 
 import numpy as np
 
@@ -69,15 +69,10 @@ def calculate_information_saxe(input_values, labels, bins=-1):
     nats2bits = 1.0 / np.log(2)
 
     def information(activation):
-        # data_t = [add_noise(a, noise) for a in activation]
-        data_t = activation  
-        # don't think need to add noise to activations as they are produced
-        # randomly by the neural network, adding noise only prevents entropy
-        # calculations from failing in situations when 5 points have the exact
-        # same values, then a division by zero is possible.
+        data_t = activation
 
         if bins > 0:
-            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), noise) for t in data_t]
+            data_t = [add_noise(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())) for t in data_t]
 
         def info(t):
             h_t = entropy_func_upper([t,])[0]

@@ -2,7 +2,7 @@ import numpy as np
 import information.WeihaoGao as wGao
 import information.NaftaliTishby as nTishby
 import information.kde as kde
-from utils import pairwise, add_noise, noise
+from utils import pairwise, add_noise
 
 supported_estimators = ["Tishby", "KDE"]
 
@@ -36,15 +36,15 @@ def __calculate_information_KSG(input_values, labels, bins=30):
     data_x = input_values
     data_y = labels
 
-    data_x = add_noise(input_values, noise)
-    data_y = add_noise(labels, noise)
+    data_x = add_noise(input_values)
+    data_y = add_noise(labels)
 
     def information(activation):
         data_t = activation
         #e_t = [entropy(t) for t in data_t]
 
         if bins > 0:
-            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), noise) for t in data_t]
+            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max()))) for t in data_t]
 
         i_y_t = [wGao._KSG_mi(np.array([np.append(t, y) for t, y in zip(layer, data_y)]), split=len(layer[0])) for layer in data_t]
         i_x_t = [wGao._KSG_mi(np.array([np.append(t, x) for t, x in zip(layer, data_x)]), split=len(layer[0])) for layer in data_t]
@@ -63,8 +63,8 @@ def __calculate_information_wgao(input_values, labels, entropy, bins=30):
     data_x = input_values
     data_y = labels
 
-    data_x = add_noise(input_values, noise)
-    data_y = add_noise(labels, noise)
+    data_x = add_noise(input_values)
+    data_y = add_noise(labels)
 
     e_y = entropy(data_y)
     e_x = entropy(data_x)
@@ -76,7 +76,7 @@ def __calculate_information_wgao(input_values, labels, entropy, bins=30):
         # points have the exact same values, then a division by zero is possible.
 
         if bins > 0:
-            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())), noise) for t in data_t]
+            data_t = [add_noise(np.asarray(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max()))) for t in data_t]
 
         e_t = np.array([entropy(t) for t in data_t])
         e_t_y = [entropy(np.array([np.append(t, y) for t, y in zip(layer, data_y)])) for layer in data_t]
