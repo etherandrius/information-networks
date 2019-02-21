@@ -25,14 +25,9 @@ def bin_value(n, low=-1, high=1, bins=10):
 
 
 def bin_array(array, low=-1, high=1, bins=10):
-    result = []
-    for n in array:
-        if isinstance(n, np.ndarray) or isinstance(n, list):
-            new_n = bin_array(n, low, high, bins)
-        else:
-            new_n = bin_value(n, low, high, bins)
-        result.append(new_n)
-    return result
+    def bv(val):
+        return bin_value(val, low, high, bins)
+    return np.vectorize(bv)(array)
 
 
 def entropy_of_probabilities(probabilities):
