@@ -18,16 +18,9 @@ def get_probabilities(data):
     return prob, unique_inverse
 
 
-# low=inclusive, high=exclusive
-def bin_value(n, low=-1, high=1, bins=10):
-    e = (high - low) / bins
-    return max(min(int((n - low) / e), bins - 1), 0)
-
-
 def bin_array(array, low=-1, high=1, bins=10):
-    def bv(val):
-        return bin_value(val, low, high, bins)
-    return np.vectorize(bv)(array)
+    e = (high - low) / bins
+    return ((array - low) / e).astype(int)
 
 
 def entropy_of_probabilities(probabilities):
