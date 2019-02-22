@@ -5,6 +5,7 @@ from information.CalculateInformationCallback import CalculateInformationCallbac
 from information.information import get_information_calculator
 from data.data import load_data
 from information.Processor import InformationProcessor
+from information.ProcessorUnion import InformationProcessorUnion
 import math
 
 
@@ -16,9 +17,14 @@ def main():
     x_full = np.concatenate((x_train, x_test))
     y_full = np.concatenate((y_train, y_test))
 
-    information_calculator = get_information_calculator(x_full, y_full, params.mi_estimator, params.bins)
-
-    processor = InformationProcessor(information_calculator)
+    if ',' not in params.mi_estimator:
+        information_calculator = get_information_calculator(x_full, y_full, params.mi_estimator, params.bins)
+        processor = InformationProcessor(information_calculator)
+    else:
+        mies = params.mi_estimator.split(',')
+        calculators = [get_information_calculator(x_full, y_full, mie, params.bins) for mie in mies]
+        ips = [InformationProcessor(calc) for calc in calculators]
+        processor = InformationProcessorUnion(ips)
 
     model = networks.get_model_categorical(
         input_shape=x_train[0].shape, network_shape=params.shape, categories=categories, activation=params.activation)
