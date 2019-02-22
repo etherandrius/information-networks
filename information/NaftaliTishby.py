@@ -1,5 +1,6 @@
 import numpy as np
 from utils import pairwise
+import multiprocessing
 
 
 def binarize(data):
@@ -8,6 +9,10 @@ def binarize(data):
     return np \
         .ascontiguousarray(data) \
         .view(np.dtype((np.void, data.dtype.itemsize * data.shape[1])))
+
+
+def hash_data(data):
+    return np.array(list(map(lambda x: hash(str(x)), data)))
 
 
 def get_probabilities(data):
@@ -40,14 +45,17 @@ def bin_then_entropy(data):
     return e
 
 
+def __run(px_and_data):
+    px, data = px_and_data
+    return px * entropy_of_data(data)
+
+
 def __conditional_entropy(data_y, data_x):
-    # H(Y|X)
-    # assumes every x is unique
+    # H(Y|X), assumes every x is unique
     p_x, x_to_y = get_probabilities(data_x)
-    entropy = 0
-    for ix, px in enumerate(p_x):
-        h_y_given_x = entropy_of_data(data_y[x_to_y == ix])
-        entropy += px * h_y_given_x
+    px_and_data = [(px, data_y[x_to_y == ix]) for ix, px in enumerate(p_x)]
+    out = multiprocessing.Pool().map(__run, px_and_data)
+    entropy = sum(out)
 
     return entropy
 
@@ -64,23 +72,25 @@ def __calculate_information_data(data_x, data_y):
 
 
 def __calculate_information_tishby(input_values, labels, bins=30):
-
     # activation layers*test_case*neuron -> value)
 
     # calculate information I(X,T) and I(T,Y) where X is the input and Y is the output
     # and T is any layer
-    data_x = binarize(input_values)
-    data_y = binarize(labels)
+    data_x = hash_data(input_values)
+    data_y = hash_data(labels)
+    #data_x = binarize(input_values)
+    #data_y = binarize(labels)
 
     def information(activation):
         data_t = activation
 
         if bins == -1:
-            data_t = [np.asarray(bin_array(t, bins=30, low=t.min(), high=t.max())) for t in data_t]
+            data_t = [bin_array(t, bins=30, low=t.min(), high=t.max()) for t in data_t]
         else:
-            data_t = [np.asarray(bin_array(t, bins=bins, low=t.min(), high=t.max())) for t in data_t]
+            data_t = [bin_array(t, bins=bins, low=t.min(), high=t.max()) for t in data_t]
 
-        data_t = [binarize(t) for t in data_t]
+        #data_t = [binarize(t) for t in data_t]
+        data_t = [hash_data(t) for t in data_t]
 
         h_t = np.array([entropy_of_data(t) for t in data_t])
         h_t_x = np.array([__conditional_entropy(t, data_x) for t in data_t])
