@@ -27,7 +27,8 @@ def get_information_calculator(input_values, labels, entropy, bins):
     elif entropy == "LNN_1":
         entropy = wGao.LNN_1_entropy
     else:
-        raise ValueError("Unsupported mutual information estimator {}, available: {}".format(entropy, input_values))
+        raise ValueError("Unsupported mutual information estimator {}, available: {}"
+                         .format(entropy, supported_estimators))
 
     return __calculate_information_wgao(input_values, labels, entropy, bins)
 
