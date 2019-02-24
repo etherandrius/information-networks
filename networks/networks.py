@@ -7,7 +7,7 @@ from keras import backend as K
 activation_functions = ["tanh, sigmoid, relu, linear"]
 
 
-def get_model_categorical(input_shape, network_shape, categories=2, activation='tanh'):
+def get_model_categorical(input_shape, network_shape="10,8,6,4", categories=2, activation='tanh'):
     #tf.logging.set_verbosity(tf.logging.ERROR)  # ignores warning caused by callbacks being expensive
     model = Sequential()
     network_shape = network_shape.split(',')
