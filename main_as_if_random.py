@@ -1,16 +1,9 @@
-import numpy as np
 import networks.networks as networks
-from parameters import *
-from information.CalculateInformationCallback import CalculateInformationCallback
-from information.information import get_information_calculator
 from data.data import load_data
-from information.Processor import InformationProcessor
-from information.ProcessorUnion import InformationProcessorUnion
 import math
-import keras as keras
+import keras
 from keras import backend as K
 import pandas as pd
-from tqdm import tqdm
 
 
 def main():
