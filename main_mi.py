@@ -10,7 +10,7 @@ import math
 
 
 def main():
-    params = parameters()
+    params = general_parameters()
 
     (x_train, y_train), (x_test, y_test), categories = load_data(params.data_set, params.train_size)
 
@@ -48,6 +48,12 @@ def main():
     processor.plot("output/images/" + filename(params) + append)
     print("Done")
     return
+
+
+def params():
+    parser = argparse.ArgumentParser()
+    networks.parameters_network(parser)
+    general_parameters(parser)
 
 
 def filename(params):

@@ -31,3 +31,29 @@ def decode_layer(spec, activation="tanh"):
         size = int(spec[0])
         activation = spec[1] if len(spec) >= 2 else activation
         return Dense(size, activation=activation)
+
+
+def parameters_network(parser):
+    parameters = parser.add_argument_group('Network parameters')
+
+    parameters.add_argument('--activation_function',
+                        '-af', dest='activation', default="tanh",
+                        help="Choose what neural network activation function to use available: {}"
+                        .format(activation_functions))
+
+    parameters.add_argument('--network_shape', '-ns', dest='shape', default="10,8,6,4",
+                        help='Shape of the DNN, ex :'
+                             '12,Dr,10-tanh,8-relu,6-sigmoid,BN,2 , would represent a DNN shape where 1st layer is Dense of size 12, 2nd layer is a Dropout layer, 3rd layer is Dense with size 10 and tanh activation function, 5th is Dense with relu activation function,..., 7th is BatchNormalization layer,..., note: 0th and last layers are automatically created to fit the dataset')
+
+    parser.add_argument('--batch_size',
+                        '-bs', dest='batch_size', default=512,
+                        type=int)
+
+    parser.add_argument('--num_of_epochs',
+                        '-e', dest='epochs', default=1500,
+                        type=int, help='Number of times to scan the dataset for NN training')
+
+
+
+
+
