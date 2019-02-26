@@ -1,16 +1,16 @@
 import numpy as np
-import networks.networks as networks
-from parameters import *
-from information.CalculateInformationCallback import CalculateInformationCallback
-from information.information import get_information_calculator
-from data.data import load_data
-from information.Processor import InformationProcessor
-from information.ProcessorUnion import InformationProcessorUnion
+import argparse
 import math
+from networks.networks import network_parameters, get_model_categorical
+from information.CalculateInformationCallback import CalculateInformationCallback
+from information.information import get_information_calculator, mie_parameters
+from data.data import load_data
+from information.Processor import InformationProcessor, information_processor_parameters
+from information.ProcessorUnion import InformationProcessorUnion
 
 
 def main():
-    params = general_parameters()
+    params = get_parameters()
 
     (x_train, y_train), (x_test, y_test), categories = load_data(params.data_set, params.train_size)
 
@@ -26,8 +26,11 @@ def main():
         ips = [InformationProcessor(calc) for calc in calculators]
         processor = InformationProcessorUnion(ips)
 
-    model = networks.get_model_categorical(
-        input_shape=x_train[0].shape, network_shape=params.shape, categories=categories, activation=params.activation)
+    model = get_model_categorical(
+        input_shape=x_train[0].shape,
+        network_shape=params.shape,
+        categories=categories,
+        activation=params.activation)
 
     print("Training and Calculating mutual information")
     batch_size = min(params.batch_size, len(x_train)) if params.batch_size > 0 else len(x_train)
@@ -50,10 +53,11 @@ def main():
     return
 
 
-def params():
+def get_parameters():
     parser = argparse.ArgumentParser()
-    networks.parameters_network(parser)
-    general_parameters(parser)
+    network_parameters(parser)
+    mie_parameters(parser)
+    information_processor_parameters(parser)
 
 
 def filename(params):

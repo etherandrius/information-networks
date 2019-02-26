@@ -33,7 +33,7 @@ def decode_layer(spec, activation="tanh"):
         return Dense(size, activation=activation)
 
 
-def parameters_network(parser):
+def network_parameters(parser):
     parameters = parser.add_argument_group('Network parameters')
 
     parameters.add_argument('--activation_function',
