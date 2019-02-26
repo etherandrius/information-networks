@@ -18,25 +18,18 @@ def main():
 
 def params():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input',
-                        '-i', dest='input', required=True,
+    parser.add_argument('input',
                         help='input pickle data file')
 
-    parser.add_argument('--output',
-                        '-o', dest='output', default=None,
+    parser.add_argument('output',
                         help='output movie file')
 
     parser.add_argument('--movie_length',
                         '-ml', dest='movie_length', default=40, type=int,
                         help='approx movie length in seconds')
 
-    parser.add_argument('--old',
-                        dest='old', default=2, type=int,
-                        help='1 - if data is from release 1.0, 2 - if later')
-
     args = parser.parse_args()
     args.output = output(args)
-
     return args
 
 

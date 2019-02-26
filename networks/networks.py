@@ -34,7 +34,7 @@ def decode_layer(spec, activation="tanh"):
 
 
 def network_parameters(parser):
-    parameters = parser.add_argument_group('Network parameters')
+    parameters = parser.add_argument_group('Neural Network parameters')
 
     parameters.add_argument('--activation_function',
                         '-af', dest='activation', default="tanh",
@@ -45,11 +45,11 @@ def network_parameters(parser):
                         help='Shape of the DNN, ex :'
                              '12,Dr,10-tanh,8-relu,6-sigmoid,BN,2 , would represent a DNN shape where 1st layer is Dense of size 12, 2nd layer is a Dropout layer, 3rd layer is Dense with size 10 and tanh activation function, 5th is Dense with relu activation function,..., 7th is BatchNormalization layer,..., note: 0th and last layers are automatically created to fit the dataset')
 
-    parser.add_argument('--batch_size',
+    parameters.add_argument('--batch_size',
                         '-bs', dest='batch_size', default=512,
                         type=int)
 
-    parser.add_argument('--num_of_epochs',
+    parameters.add_argument('--num_of_epochs',
                         '-e', dest='epochs', default=1500,
                         type=int, help='Number of times to scan the dataset for NN training')
 

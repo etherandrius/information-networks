@@ -84,11 +84,11 @@ class InformationProcessor(object):
 
 
 def information_processor_parameters(parser):
-    parameters = parser.add_argument_group('information processor parameters')
+    parameters = parser.add_argument_group('Information Processor parameters')
 
     parameters.add_argument('--delta',
                     '-d', dest='delta', default=0.1,
-                    type=float, help="Tolerance on how densely to calculate mutual information")
+                    type=float, help="Tolerance on how densely to calculate mutual information, higher delta will skip more epochs")
 
     parameters.add_argument('--cores',
                             '-c', dest='cores', default=1,

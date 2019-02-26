@@ -34,7 +34,7 @@ def get_information_calculator(input_values, labels, entropy, bins):
 
 
 def mie_parameters(parser):
-    parameters = parser.add_argument_group('mutual information estimator parameters')
+    parameters = parser.add_argument_group('Mutual Information Estimator parameters')
 
     parameters.add_argument('--mi_estimator',
                     '-mie', dest='mi_estimator', default="Tishby",

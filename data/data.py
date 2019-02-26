@@ -57,14 +57,14 @@ def __random(dim):
 
 
 def parameters_data(parser):
-    parameters = parser.add_argument_group('Data parameters')
+    parameters = parser.add_argument_group('Data Set parameters')
 
-    parser.add_argument('--data_set',
+    parameters.add_argument('--data_set',
                         '-ds', dest='data_set', default='Tishby',
-                        help='choose a data set, available: {}'.format(data_sets) +
+                        help='choose a data set, available: {}'.format(supported_data_sets) +
                              ', Tishby - data set used by Tishby in the original paper')
 
-    parser.add_argument('--train_size',
+    parameters.add_argument('--train_size',
                         '-ts', dest='train_size', default=0.8,
                         type=float, help='Training size')
 
