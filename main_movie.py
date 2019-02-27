@@ -4,7 +4,7 @@ import _pickle
 
 
 def main():
-    args = params()
+    args = movie_parameters()
     # data -> epoch * (i_x_t, i_y_t, i_t_t)
     data = _pickle.load(open(args.input, 'rb'))
     if args.old == 1:
@@ -16,7 +16,7 @@ def main():
     plot_movie(data, args.movie_length, filename=args.output)
 
 
-def params():
+def movie_parameters():
     parser = argparse.ArgumentParser()
     parser.add_argument('input',
                         help='input pickle data file')
