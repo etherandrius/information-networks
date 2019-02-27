@@ -68,8 +68,3 @@ def parameters_data(parser):
                         '-ts', dest='train_size', default=0.8,
                         type=float, help='Training size')
 
-
-
-
-
-
