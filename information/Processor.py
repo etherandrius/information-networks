@@ -83,6 +83,19 @@ class InformationProcessor(object):
         return mi_curr
 
 
+def information_processor_parameters(parser):
+    parameters = parser.add_argument_group('Information Processor parameters')
+
+    parameters.add_argument('--delta',
+                    '-d', dest='delta', default=0.1,
+                    type=float, help="Tolerance on how densely to calculate mutual information, higher delta will skip more epochs")
+
+    parameters.add_argument('--cores',
+                            '-c', dest='cores', default=1,
+                            type=int,
+                            help='number of information instances to compute at a time')
+
+
 def _dist(i_a, i_b):
     """
     Just a random distance metric used to decide if to compute mutual

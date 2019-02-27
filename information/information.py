@@ -33,6 +33,20 @@ def get_information_calculator(input_values, labels, entropy, bins):
     return __calculate_information_wgao(input_values, labels, entropy, bins)
 
 
+def mie_parameters(parser):
+    parameters = parser.add_argument_group('Mutual Information Estimator parameters')
+
+    parameters.add_argument('--mi_estimator',
+                    '-mie', dest='mi_estimator', default="Tishby",
+                    help="Choose what mutual information estimator to use available: {}, ".format(supported_estimators)
+                         + "Tishby - method used by Tishby in his paper, "
+                         "KDE - Kernel density estimator")
+
+    parameters.add_argument('--bins',
+                        '-b', dest='bins', default=-1, type=int,
+                        help="select number of bins to use for MIE's. -1 for no binning. Note: Tishby MIE requires binning and defaults to 30")
+
+
 def __calculate_information_KSG(input_values, labels, bins=30):
     data_x = input_values
     data_y = labels

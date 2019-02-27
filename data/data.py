@@ -54,3 +54,17 @@ def __random(dim):
     arr[:m] = 0
     np.random.shuffle(arr)
     return arr
+
+
+def parameters_data(parser):
+    parameters = parser.add_argument_group('Data Set parameters')
+
+    parameters.add_argument('--data_set',
+                        '-ds', dest='data_set', default='Tishby',
+                        help='choose a data set, available: {}'.format(supported_data_sets) +
+                             ', Tishby - data set used by Tishby in the original paper')
+
+    parameters.add_argument('--train_size',
+                        '-ts', dest='train_size', default=0.8,
+                        type=float, help='Training size')
+
