@@ -53,7 +53,3 @@ def network_parameters(parser):
                         '-e', dest='epochs', default=1500,
                         type=int, help='Number of times to scan the dataset for NN training')
 
-
-
-
-
