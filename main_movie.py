@@ -7,12 +7,6 @@ def main():
     args = movie_parameters()
     # data -> epoch * (i_x_t, i_y_t, i_t_t)
     data = _pickle.load(open(args.input, 'rb'))
-    if args.old == 1:
-        data1 = data
-        data = {}
-        for e, i in enumerate(data1):
-            data[15*e] = i
-
     plot_movie(data, args.movie_length, filename=args.output)
 
 
