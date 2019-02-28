@@ -1,10 +1,43 @@
 import _pickle
+import abc
 from plot.plot import plot_main
 from BlockingThreadPoolExecutor import BlockingThreadPoolExecutor
 from threading import Lock
 
 
-class InformationProcessorDeltaExact(object):
+class InformationProcessor(object, metaclass=abc.ABCMeta):
+
+    @abc.abstractmethod
+    def save(self, path):
+        """
+        Saves the data to a pickle file
+        :param path: file path
+        :return: None
+        """
+        raise NotImplementedError(".save() is not implemented (are you using the Abstract class?)")
+
+    @abc.abstractmethod
+    def plot(self, path, show=False):
+        """
+        Plots the data and saves it to a file
+        :param path: file path
+        :param show: show image?
+        :return: None
+        """
+        raise NotImplementedError(".plot() is not implemented (are you using the Abstract class?)")
+
+    @abc.abstractmethod
+    def calculate_information(self, activation, epoch):
+        """
+        May calculate mutual information for the epoch
+        :param activation: network activation, see @Information.CalculateInformationCallback how the data is gathered
+        :param epoch: epoch number
+        :return: None
+        """
+        raise NotImplementedError(".calculate_information() is not implemented (are you using the Abstract class?)")
+
+
+class InformationProcessorDeltaExact(InformationProcessor):
     """
     Contains the logic for which epochs to calculate Mutual Information
 
@@ -97,7 +130,7 @@ class InformationProcessorDeltaExact(object):
         return mi_curr
 
 
-class InformationProcessorUnion(InformationProcessorDeltaExact):
+class InformationProcessorUnion(InformationProcessor):
     def __init__(self, ips):
         assert(len(ips) > 0)
         super().__init__(None)
