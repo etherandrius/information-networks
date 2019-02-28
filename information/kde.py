@@ -78,10 +78,9 @@ def calculate_information_saxe(input_values, labels, bins=-1):
             h_t = entropy_func_upper([t,])[0]
             h_t_given_x = kde_condentropy(t, noise_variance)
             h_t_given_y = 0
-            for i in range(categories):
-                h = entropy_func_upper([t[saved_labelixs[i],:],])[0]
-                h_t_given_y += labelprobs[i] * h
-            h_t_given_y
+            for j in range(categories):
+                h = entropy_func_upper([t[saved_labelixs[j], :], ])[0]
+                h_t_given_y += labelprobs[j] * h
             return nats2bits * (h_t - h_t_given_x), nats2bits * (h_t - h_t_given_y)
 
         mutual_information = [(*info(t), 0) for t in data_t]
