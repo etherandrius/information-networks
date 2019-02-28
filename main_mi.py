@@ -5,8 +5,8 @@ from networks.networks import network_parameters, get_model_categorical
 from information.CalculateInformationCallback import CalculateInformationCallback
 from information.information import get_information_calculator, mie_parameters
 from data.data import load_data, parameters_data
-from information.Processor import InformationProcessor, information_processor_parameters
-from information.ProcessorUnion import InformationProcessorUnion
+from information.Processor import InformationProcessorDeltaApprox, InformationProcessorUnion
+from information.Processor import information_processor_parameters
 from utils import ProgressBarCallback
 
 
@@ -20,11 +20,11 @@ def main():
 
     if ',' not in args.mi_estimator:
         information_calculator = get_information_calculator(x_full, y_full, args.mi_estimator, args.bins)
-        processor = InformationProcessor(information_calculator)
+        processor = InformationProcessorDeltaApprox(information_calculator)
     else:
         mies = args.mi_estimator.split(',')
         calculators = [get_information_calculator(x_full, y_full, mie, args.bins) for mie in mies]
-        ips = [InformationProcessor(calc) for calc in calculators]
+        ips = [InformationProcessorDeltaApprox(calc) for calc in calculators]
         processor = InformationProcessorUnion(ips)
 
     model = get_model_categorical(

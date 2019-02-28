@@ -1,6 +1,5 @@
 import keras as keras
 from keras import backend as K
-from tqdm import tqdm
 
 
 class CalculateInformationCallback(keras.callbacks.Callback):
