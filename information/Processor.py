@@ -36,6 +36,56 @@ class InformationProcessor(object, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError(".calculate_information() is not implemented (are you using the Abstract class?)")
 
+    def finish_information_calculation(self):
+        raise NotImplementedError(
+            ".finish_information_calculation() is not implemented (are you using the Abstract class?)")
+
+
+class InformationProcessorDeltaApprox(InformationProcessor):
+    """
+    Contains the logic for which epochs to calculate Mutual Information
+
+    Distance between consecutive calculated epochs is Approximately @delta
+    """
+
+    def __init__(self, information_calculator, delta=0.2):
+        """
+        :param information_calculator: See information.information.get_information_calculator
+        :param delta: how densely to calculate information, higher val => more layers skipped
+        """
+        self.mi = {}
+        self.__prev = None
+        self.__skip = 1
+        self.__delta = delta
+        self.__calculator = information_calculator
+
+    def save(self, path):
+        _pickle.dump(self.mi, open(path, 'wb'))
+
+    def plot(self, path, show=False):
+        # this line just unpacks the map so it's easy to feed into plot_main
+        mi = list(zip(*map(lambda el: (el[0], *el[1]), self.mi.items())))
+        epochs, i_x_t, i_y_t, i_t_t = mi
+        plot_main(i_x_t, i_y_t, path, show)
+
+    def calculate_information(self, activation, epoch):
+        if epoch % self.__skip != 0:
+            return
+
+        if self.__prev is None:
+            self.__prev = self.__calculator(activation)
+            self.mi[epoch] = self.__prev
+            return
+
+        curr = self.__calculator(activation)
+        self.mi[epoch] = curr
+        if _dist(self.__prev, curr) <= self.__delta:
+            self.__skip = self.__skip * 2
+
+    def finish_information_calculation(self):
+        # there is no state to cleanup for this class
+        pass
+
 
 class InformationProcessorDeltaExact(InformationProcessor):
     """
@@ -47,9 +97,9 @@ class InformationProcessorDeltaExact(InformationProcessor):
 
     In case of OOMs use InformationProcessorDeltaApprox
     """
+
     def __init__(self, information_calculator, buffer_limit=1, delta=0.2, max_workers=1):
         """
-
         :param information_calculator: See information.information.get_information_calculator
         :param buffer_limit: limits memory usage, higher val => more memory usage (bad), more layers skipped (good)
         :param delta: how densely to calculate information, higher val => more layers skipped
@@ -69,8 +119,9 @@ class InformationProcessorDeltaExact(InformationProcessor):
         _pickle.dump(self.mi, open(path, 'wb'))
 
     def plot(self, path, show=False):
-        new_mi = list(zip(*map(lambda el: (el[0], *el[1]), self.mi.items())))
-        epochs, i_x_t, i_y_t, i_t_t = new_mi
+        # this line just unpacks the map so it's easy to feed into plot_main
+        mi = list(zip(*map(lambda el: (el[0], *el[1]), self.mi.items())))
+        epochs, i_x_t, i_y_t, i_t_t = mi
         plot_main(i_x_t, i_y_t, path, show)
 
     def calculate_information(self, activation, epoch):
@@ -95,7 +146,7 @@ class InformationProcessorDeltaExact(InformationProcessor):
             mi_curr = self.__calculator(curr_activation)
             self.__global_prev = mi_curr
             if _dist(local_prev, mi_curr) <= self.__delta:
-                self.__buffer_limit = min(self.__buffer_limit*2, 32)
+                self.__buffer_limit = min(self.__buffer_limit * 2, 32)
             self.__lock.release()
             self.__executor.submit(self.__info_calc_entry, local_prev, mi_curr, epoch_curr, activation_buffer, [])
             return
@@ -113,7 +164,7 @@ class InformationProcessorDeltaExact(InformationProcessor):
                 self.mi[epoch] = mi
 
     def __info_calc_loop(self, mi_prev, activation_buffer, carry):
-        assert(len(activation_buffer) > 0)
+        assert (len(activation_buffer) > 0)
         curr_activation, epoch_curr = activation_buffer[-1]
         mi_curr = self.__calculator(curr_activation)
 
@@ -132,7 +183,7 @@ class InformationProcessorDeltaExact(InformationProcessor):
 
 class InformationProcessorUnion(InformationProcessor):
     def __init__(self, ips):
-        assert(len(ips) > 0)
+        assert (len(ips) > 0)
         super().__init__(None)
         self.ips = ips
 
@@ -157,8 +208,9 @@ def information_processor_parameters(parser):
     parameters = parser.add_argument_group('Information Processor parameters')
 
     parameters.add_argument('--delta',
-                    '-d', dest='delta', default=0.1,
-                    type=float, help="Tolerance on how densely to calculate mutual information, higher delta will skip more epochs")
+                            '-d', dest='delta', default=0.1,
+                            type=float,
+                            help="Tolerance on how densely to calculate mutual information, higher delta will skip more epochs")
 
     parameters.add_argument('--cores',
                             '-c', dest='cores', default=1,
