@@ -7,7 +7,7 @@ from information.information import get_information_calculator, mie_parameters
 from data.data import load_data, parameters_data
 from information.Processor import InformationProcessor, information_processor_parameters
 from information.ProcessorUnion import InformationProcessorUnion
-from utils import ProgressCallback
+from utils import ProgressBarCallback
 
 
 def main():
@@ -39,7 +39,7 @@ def main():
     information_callback = CalculateInformationCallback(model, processor, x_full)
     model.fit(x_train, y_train,
               batch_size=batch_size,
-              callbacks=[information_callback, ProgressCallback(no_of_batches)],
+              callbacks=[information_callback, ProgressBarCallback(no_of_batches)],
               epochs=args.epochs,
               validation_data=(x_test, y_test),
               verbose=0)

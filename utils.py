@@ -19,7 +19,7 @@ def __add_noise_value(n, noise_function):
     return n + noise_function()
 
 
-class ProgressCallback(keras.callbacks.Callback):
+class ProgressBarCallback(keras.callbacks.Callback):
     """
     Calls informationProcessor to calculate mutual information per batch
     """
