@@ -42,6 +42,41 @@ class InformationProcessor(object, metaclass=abc.ABCMeta):
             ".finish_information_calculation() is not implemented (are you using the Abstract class?)")
 
 
+class InformationProcessorSimple(InformationProcessor):
+
+    def __init__(self, information_calculator, skip):
+        """
+        :param information_calculator: See information.information.get_information_calculator
+        :param skip: if skip is int: calculate MI for: epoch % skip == 0
+                     if skip is a function int -> bool: calculate MI for: skip(epoch) == true
+        """
+        self.mi = {}
+        self.__prev = None
+        if type(skip) is int:
+            self.__skip = lambda x: x % skip == 0
+        else:
+            self.__skip = skip
+        self.__calculator = information_calculator
+
+    def save(self, path):
+        _pickle.dump(self.mi, open(path, 'wb'))
+
+    def plot(self, path, show=False):
+        # this line just unpacks the map so it's easy to feed into plot_main
+        mi = list(zip(*map(lambda el: (el[0], *el[1]), self.mi.items())))
+        epochs, i_x_t, i_y_t, i_t_t = mi
+        plot_main(i_x_t, i_y_t, path, show)
+
+    def calculate_information(self, activation, epoch):
+        if self.__skip(epoch):
+            mi = self.__calculator(activation())
+            self.mi[epoch] = mi
+
+    def finish_information_calculation(self):
+        # there is no state to cleanup for this class
+        pass
+
+
 class InformationProcessorDeltaApprox(InformationProcessor):
     """
     Contains the logic for which epochs to calculate Mutual Information
