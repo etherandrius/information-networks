@@ -7,6 +7,7 @@ from information.information import get_information_calculator, mie_parameters
 from data.data import load_data, parameters_data
 from information.Processor import InformationProcessor, information_processor_parameters
 from information.ProcessorUnion import InformationProcessorUnion
+from utils import ProgressCallback
 
 
 def main():
@@ -35,11 +36,10 @@ def main():
     print("Training and Calculating mutual information")
     batch_size = min(args.batch_size, len(x_train)) if args.batch_size > 0 else len(x_train)
     no_of_batches = math.ceil(len(x_train) / batch_size) * args.epochs
-    information_callback = CalculateInformationCallback(
-        model, processor, x_full, no_of_batches)
+    information_callback = CalculateInformationCallback(model, processor, x_full)
     model.fit(x_train, y_train,
               batch_size=batch_size,
-              callbacks=[information_callback],
+              callbacks=[information_callback, ProgressCallback(no_of_batches)],
               epochs=args.epochs,
               validation_data=(x_test, y_test),
               verbose=0)

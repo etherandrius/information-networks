@@ -1,3 +1,5 @@
+import keras as keras
+from tqdm import tqdm
 import itertools
 import numpy as np
 
@@ -15,3 +17,18 @@ def add_noise(data, mean=0, std=0.01):
 
 def __add_noise_value(n, noise_function):
     return n + noise_function()
+
+
+class ProgressCallback(keras.callbacks.Callback):
+    """
+    Calls informationProcessor to calculate mutual information per batch
+    """
+    def __init__(self, no_of_batches):
+        super().__init__()
+        self.__progress = tqdm(total=no_of_batches)
+
+    def on_batch_end(self, batch, logs=None):
+        self.__progress.update(1)
+
+    def on_train_end(self, logs=None):
+        self.__progress.close()
