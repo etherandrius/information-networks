@@ -5,8 +5,9 @@ from networks.networks import network_parameters, get_model_categorical
 from information.CalculateInformationCallback import CalculateInformationCallback
 from information.information import get_information_calculator, mie_parameters
 from data.data import load_data, parameters_data
-from information.Processor import InformationProcessorDeltaExact, information_processor_parameters
-from information.ProcessorUnion import InformationProcessorUnion
+from information.Processor import InformationProcessorDeltaExact
+from information.Processor import InformationProcessorUnion
+from information.Processor import information_processor_parameters
 from utils import ProgressBarCallback
 
 
