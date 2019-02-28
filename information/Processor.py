@@ -91,13 +91,14 @@ class InformationProcessorDeltaExact(InformationProcessor):
     """
     Contains the logic for which epochs to calculate Mutual Information
 
-    Distance between consecutive calculated epochs is guaranteed to be less than @delta
+    (*) Distance between consecutive calculated epochs is guaranteed to be less than @delta
 
     Uses a lot of memory hence @buffer_limit
 
     In case of OOMs use InformationProcessorDeltaApprox
-    """
 
+    The code is quite complicated but is stable, use this only if you need the guarantee (*), o/w use *DeltaApprox
+    """
     def __init__(self, information_calculator, buffer_limit=1, delta=0.2, max_workers=1):
         """
         :param information_calculator: See information.information.get_information_calculator
