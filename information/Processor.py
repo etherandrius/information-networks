@@ -7,8 +7,22 @@ from threading import Lock
 class InformationProcessorDeltaExact(object):
     """
     Contains the logic for which epochs to calculate Mutual Information
+
+    Distance between consecutive calculated epochs is guaranteed to be less than @delta
+
+    Uses a lot of memory hence @buffer_limit
+
+    In case of OOMs use InformationProcessorDeltaApprox
     """
-    def __init__(self, information_calculator, buffer_limit=1, delta=0.2, max_workers=4):
+    def __init__(self, information_calculator, buffer_limit=1, delta=0.2, max_workers=1):
+        """
+
+        :param information_calculator: See information.information.get_information_calculator
+        :param buffer_limit: limits memory usage, higher val => more memory usage (bad), more layers skipped (good)
+        :param delta: how densely to calculate information, higher val => more layers skipped
+        :param max_workers: how many threads to use, (note: information_calculator may also be parallelized in which
+                            case max_workers=1 may be a good choice)
+        """
         self.mi = {}
         self.__global_prev = None
         self.__buffered_activations = []
