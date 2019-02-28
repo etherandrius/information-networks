@@ -29,8 +29,9 @@ class InformationProcessor(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def calculate_information(self, activation, epoch):
         """
-        May calculate mutual information for the epoch
-        :param activation: network activation, see @Information.CalculateInformationCallback how the data is gathered
+        Might calculate mutual information for the epoch
+        :param activation: function returning network activation data, see @Information.CalculateInformationCallback
+                           for how the data is gathered
         :param epoch: epoch number
         :return: None
         """
@@ -71,6 +72,8 @@ class InformationProcessorDeltaApprox(InformationProcessor):
     def calculate_information(self, activation, epoch):
         if epoch % self.__skip != 0:
             return
+
+        activation = activation()
 
         if self.__prev is None:
             self.__prev = self.__calculator(activation)
@@ -126,6 +129,7 @@ class InformationProcessorDeltaExact(InformationProcessor):
         plot_main(i_x_t, i_y_t, path, show)
 
     def calculate_information(self, activation, epoch):
+        activation = activation()
         self.__lock.acquire()
         if self.__global_prev is None:
             self.__global_prev = self.__calculator(activation)
