@@ -1,7 +1,7 @@
-from information.Processor import InformationProcessor
+from information.Processor import InformationProcessorDeltaExact
 
 
-class InformationProcessorUnion(InformationProcessor):
+class InformationProcessorUnion(InformationProcessorDeltaExact):
     def __init__(self, ips):
         assert(len(ips) > 0)
         super().__init__(None)

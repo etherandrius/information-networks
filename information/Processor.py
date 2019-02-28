@@ -4,7 +4,7 @@ from BlockingThreadPoolExecutor import BlockingThreadPoolExecutor
 from threading import Lock
 
 
-class InformationProcessor(object):
+class InformationProcessorDeltaExact(object):
     """
     Contains the logic for which epochs to calculate Mutual Information
     """
