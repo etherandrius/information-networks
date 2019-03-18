@@ -1,6 +1,5 @@
 import keras.backend as K
-import information.NaftaliTishby as nTishby
-from utils import add_noise
+from utils import add_noise, bin_array
 
 import numpy as np
 
@@ -72,7 +71,7 @@ def calculate_information_saxe(input_values, labels, bins=-1):
         data_t = activation
 
         if bins > 0:
-            data_t = [add_noise(nTishby.bin_array(t, bins=bins, low=t.min(), high=t.max())) for t in data_t]
+            data_t = [add_noise(bin_array(t, bins=bins, low=t.min(), high=t.max())) for t in data_t]
 
         def info(t):
             h_t = entropy_func_upper([t,])[0]
