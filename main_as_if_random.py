@@ -76,10 +76,6 @@ def main():
             for vvv in ptx[(t, xid)]:
                 pxpt = px[xid]*pt[t][vvv]
                 pppp = ptx[(t, xid)][vvv]
-                if pxpt > 1:
-                    print("WTF!!!")
-                if pppp > 1:
-                    print("WTFFF!!!")
                 add = pppp*math.log2(pppp / pxpt)
                 Ixt[t] += add
 
