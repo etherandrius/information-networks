@@ -10,6 +10,15 @@ def pairwise(itt):
     return zip(a, b)
 
 
+def hash_data(data):
+    return np.array(list(map(lambda x: hash(str(x)), data)))
+
+
+def bin_array(array, low=-1, high=1, bins=10):
+    e = (high - low) / bins
+    return ((array - low) / e).astype(int)
+
+
 # addding noise is necessary to prevent infinite MI (i.e prevents division by zero for some MI estimators)
 def add_noise(data, mean=0, std=0.01):
     return data + np.random.normal(mean, std, data.shape)

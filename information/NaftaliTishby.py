@@ -1,5 +1,5 @@
 import numpy as np
-from utils import pairwise
+from utils import pairwise, bin_array, hash_data
 import multiprocessing
 
 
@@ -11,21 +11,12 @@ def binarize(data):
         .view(np.dtype((np.void, data.dtype.itemsize * data.shape[1])))
 
 
-def hash_data(data):
-    return np.array(list(map(lambda x: hash(str(x)), data)))
-
-
 def get_probabilities(data):
     unique_array, _, unique_inverse, unique_counts = \
         np.unique(data, return_counts=True, return_index=True, return_inverse=True)
     prob = unique_counts / np.sum(unique_counts)
 
     return prob, unique_inverse
-
-
-def bin_array(array, low=-1, high=1, bins=10):
-    e = (high - low) / bins
-    return ((array - low) / e).astype(int)
 
 
 def entropy_of_probabilities(probabilities):
@@ -71,7 +62,7 @@ def __calculate_information_data(data_x, data_y):
     return mutual_information
 
 
-def __calculate_information_tishby(input_values, labels, bins=30):
+def calculate_information_tishby(input_values, labels, bins=30):
     # activation layers*test_case*neuron -> value)
 
     # calculate information I(X,T) and I(T,Y) where X is the input and Y is the output
