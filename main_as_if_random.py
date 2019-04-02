@@ -1,45 +1,46 @@
-import math
 import keras
-import networks.networks as networks
 import numpy as np
 from information.NaftaliTishby import __conditional_entropy, entropy_of_data
-from data.data import load_data
 from keras import backend as K
 from utils import bin_array, hash_data
 import _pickle
+import argparse
+import math
+from networks.networks import network_parameters, get_model_categorical
+from data.data import load_data, parameters_data
 
 
 def main():
+    args = get_parameters()
 
-    (x_train, y_train), (x_test, y_test), categories = load_data("Tishby", 0.2)
+    (x_train, y_train), (x_test, y_test), categories = load_data(args.data_size, args.train_size)
 
-    model = networks.get_model_categorical(input_shape=x_train[0].shape, categories=categories)
-
-    batch_size = 512
-    epochs = 15000
-    no_saved_epochs = 100
-    no_of_batches = math.ceil(len(x_train) / batch_size) * epochs
-    save_layers_callback = SaveLayers(model, x_test, max(no_of_batches - no_saved_epochs, 0))
+    model = get_model_categorical(
+        input_shape=x_train[0].shape,
+        network_shape=args.shape,
+        categories=categories,
+        activation=args.activation)
+    no_of_batches = math.ceil(len(x_train) / args.batch_size) * args.epochs
+    save_layers_callback = SaveLayers(model, x_test, max(no_of_batches - args.no_saved_epochs, 0))
     model.fit(x_train, y_train,
-              batch_size=batch_size,
+              batch_size=args.batch_size,
               callbacks=[save_layers_callback],
-              epochs=epochs,
+              epochs=args.epochs,
               validation_data=(x_test, y_test),
               verbose=1)
 
-    print("Transforming data")
     saved = save_layers_callback.saved_layers
 
     print("data_x")
     x_test_hash = hash_data(x_test)
     data_x = x_test_hash
-    for _ in range(no_saved_epochs - 1):
+    for _ in range(args.no_saved_epochs - 1):
         data_x = np.concatenate((data_x, x_test_hash))
 
     print("data_y")
     y_test_hash = hash_data(y_test)
     data_y = y_test_hash
-    for _ in range(no_saved_epochs - 1):
+    for _ in range(args.no_saved_epochs - 1):
         data_y = np.concatenate((data_y, y_test_hash))
 
     print("data_t")
@@ -51,8 +52,6 @@ def main():
     data_t = {}
     for t in range(len(saved_hash[0])):
         data_t[t] = np.array([], dtype=np.int64)
-        # feel like the line below should not be there I've commented it out
-        # data_t[t] = saved_hash[0][t]
     for epoch in range(len(saved_hash)):
         for t in range(len(saved_hash[0])):
             data_t[t] = np.concatenate([data_t[t], saved_hash[epoch][t]])
@@ -66,9 +65,7 @@ def main():
     i_x_t = h_t - h_t_x
     i_y_t = h_t - h_t_y
 
-    filename = "e-" + str(epochs) + "_"
-    filename += "es-" + str(no_saved_epochs)
-    path = "output/data/as_if_random/" + filename
+    path = args.dest + "/data/as_if_random/" + filename(args)
     _pickle.dump((i_x_t, i_y_t), open(path, 'wb'))
 
     print(i_x_t)
@@ -118,6 +115,35 @@ class SaveLayers(keras.callbacks.Callback):
 
     def get_saved_layers(self):
         return self.saved_layers
+
+
+def get_parameters():
+    parser = argparse.ArgumentParser()
+    parameters_data(parser)
+    network_parameters(parser)
+
+    parser.add_argument('--dest',
+                        dest='dest', default="output",
+                        help="destination folder for output files")
+
+    parser.add_argument('--saved_epochs', '-se',
+                        dest='no_saved_epochs', default=100, type=int,
+                        help="no of epochs to consider when calculating mutual information")
+
+    args = parser.parse_args()
+
+    return args
+
+
+def filename(args):
+    name = "ts-" + "{0:.0%}".format(args.train_size) + ","
+    name += "e-" + str(args.epochs) + ","
+    name += "es-" + str(args.no_saved_epochs) + "_"
+    name += "_" + args.data_set + ","
+    name += "_" + args.activation
+    name += "bs-" + str(args.batch_size) + ","
+    name += "ns-" + str(args.shape)
+    return name
 
 
 print(__name__)
