@@ -32,6 +32,30 @@ def plot_main(data_x, data_y, filename=None, show=False):
     plt.cla()
 
 
+def plot_one(data_x, data_y, filename=None, show=False):
+    print("Producing information plane image")
+    cmap = plt.get_cmap('gnuplot')
+    for id, e in enumerate(pairwise(zip(data_x, data_y))):
+        (x1, y1), (x2, y2) = e
+        plt.plot((x1, x2), (y1, y2), linewidth=0.2, alpha=0.9, color=cmap(min(.9, 0.15 + id*0.1)))
+        point_size = 300
+        plt.scatter(x1, y1, s=point_size, alpha=0.9, color=cmap(min(.9, 0.15 + id*0.1)))
+        plt.scatter(x2, y2, s=point_size, alpha=0.9, color=cmap(min(.9, 0.15 + id*0.1)))
+
+    plt.xlabel('I(X,T)')
+    plt.ylabel('I(Y,T)')
+
+    if filename is not None:
+        print("Saving image to file : ", filename)
+        start = time.time()
+        plt.savefig(filename, dpi=1000)
+        end = time.time()
+        print("Time taken to save to file {:.3f}s".format((end-start)))
+    if show:
+        plt.show()
+    plt.cla()
+
+
 def plot_bilayer(series, filename=None, show=False):
     print("Producing bilayer information image")
     series = np.array(series).swapaxes(0, 1)

@@ -8,12 +8,13 @@ import argparse
 import math
 from networks.networks import network_parameters, get_model_categorical
 from data.data import load_data, parameters_data
+from plot.plot import plot_one
 
 
 def main():
     args = get_parameters()
 
-    (x_train, y_train), (x_test, y_test), categories = load_data(args.data_size, args.train_size)
+    (x_train, y_train), (x_test, y_test), categories = load_data(args.data_set, args.train_size)
 
     model = get_model_categorical(
         input_shape=x_train[0].shape,
@@ -67,9 +68,12 @@ def main():
 
     path = args.dest + "/data/as_if_random/" + filename(args)
     _pickle.dump((i_x_t, i_y_t), open(path, 'wb'))
+    path = args.dest + "/images/as_if_random/" + filename(args)
+    plot_one(i_x_t, i_y_t, filename=path)
 
     print(i_x_t)
     print(i_y_t)
+
 
     return
 
