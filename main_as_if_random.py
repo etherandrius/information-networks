@@ -1,89 +1,80 @@
-import math
 import keras
-import networks.networks as networks
 import numpy as np
-from data.data import load_data
+from information.NaftaliTishby import __conditional_entropy, entropy_of_data
 from keras import backend as K
 from utils import bin_array, hash_data
+import _pickle
+import argparse
+import math
+from networks.networks import network_parameters, get_model_categorical
+from data.data import load_data, parameters_data
+from plot.plot import plot_one
 
 
 def main():
-    (x_train, y_train), (x_test, y_test), categories = load_data("Tishby", 0.1)
+    args = get_parameters()
 
-    model = networks.get_model_categorical(input_shape=x_train[0].shape, categories=categories)
+    (x_train, y_train), (x_test, y_test), categories = load_data(args.data_set, args.train_size)
 
-    batch_size = 512
-    epochs = 300
-    no_of_batches = math.ceil(len(x_train) / batch_size) * epochs
-    save_layers_callback = SaveLayers(model, x_test, max(no_of_batches - 10, 0))
+    model = get_model_categorical(
+        input_shape=x_train[0].shape,
+        network_shape=args.shape,
+        categories=categories,
+        activation=args.activation)
+    no_of_batches = math.ceil(len(x_train) / args.batch_size) * args.epochs
+    save_layers_callback = SaveLayers(model, x_test, max(no_of_batches - args.no_saved_epochs, 0))
     model.fit(x_train, y_train,
-              batch_size=batch_size,
+              batch_size=args.batch_size,
               callbacks=[save_layers_callback],
-              epochs=epochs,
+              epochs=args.epochs,
               validation_data=(x_test, y_test),
               verbose=1)
 
-    print("Transforming data")
     saved = save_layers_callback.saved_layers
 
+    print("data_x")
+    x_test_hash = hash_data(x_test)
+    data_x = x_test_hash
+    for _ in range(args.no_saved_epochs - 1):
+        data_x = np.concatenate((data_x, x_test_hash))
+
+    print("data_y")
+    y_test_hash = hash_data(y_test)
+    data_y = y_test_hash
+    for _ in range(args.no_saved_epochs - 1):
+        data_y = np.concatenate((data_y, y_test_hash))
+
+    print("data_t")
+    # saved data where every number is binned
     saved_bin = [[bin_array(layer, bins=30, low=layer.min(), high=layer.max()) for layer in epoch] for epoch in saved]
+    # saved data where every number is hashed
     saved_hash = [[hash_data(layer) for layer in epoch] for epoch in saved_bin]
 
-    t_data = {}
+    data_t = {}
     for t in range(len(saved_hash[0])):
-        t_data[t] = np.array([], dtype=np.int64)
-        t_data[t] = saved_hash[0][t]
+        data_t[t] = np.array([], dtype=np.int64)
     for epoch in range(len(saved_hash)):
         for t in range(len(saved_hash[0])):
-            t_data[t] = np.concatenate([t_data[t], saved_hash[epoch][t]])
+            data_t[t] = np.concatenate([data_t[t], saved_hash[epoch][t]])
+    data_t = list(data_t.values())
 
-    tx_data = {}
-    for t in range(len(saved_hash[0])):
-        for xid in range(len(x_test)):
-            tx_data[(t, xid)] = np.array([], dtype=np.int64)
-    for epoch in range(len(saved_hash)):
-        for t in range(len(saved_hash[0])):
-            for xid in range(len(saved_hash[0][0])):
-                tx_data[(t, xid)] = np.append(tx_data[(t, xid)], saved_hash[epoch][t][xid])
+    print("entropy")
+    h_t = np.array([entropy_of_data(t) for t in data_t])
+    h_t_x = np.array([__conditional_entropy(t, data_x) for t in data_t])
+    h_t_y = np.array([__conditional_entropy(t, data_y) for t in data_t])
 
-    ty_data = {}
-    for t in range(len(saved_hash[0])):
-        for y in range(categories):
-            ty_data[(t,y)] = np.array([], dtype=np.int64)
-    for epoch in range(len(saved_hash)):
-        for t in range(len(saved_hash[0])):
-            for xid, y in enumerate(y_test):
-                y = np.where(y == 1)[0][0]
-                ty_data[(t, y)] = np.append(ty_data[(t, y)], saved_hash[epoch][t][xid])
+    i_x_t = h_t - h_t_x
+    i_y_t = h_t - h_t_y
 
-    print("Calculating probabilities")
+    path = args.dest + "/data/as_if_random/" + filename(args)
+    _pickle.dump((i_x_t, i_y_t), open(path, 'wb'))
+    path = args.dest + "/images/as_if_random/" + filename(args)
+    plot_one(i_x_t, i_y_t, filename=path)
 
-    # Map: value -> probability
+    print(i_x_t)
+    print(i_y_t)
 
-    py = get_probabilities([np.where(r == 1)[0][0] for r in y_test])
-    px = get_probabilities(list(range(len(x_test))))  # x is just a uniform distribution
-    pt = get_probabilities_map(t_data)
-    ptx = get_probabilities_map(tx_data)
-    pty = get_probabilities_map(ty_data)
 
-    print("Calculating Mutual Information")
-
-    # I(x, t) = sum(x,y){px*py*log(pxy/(px*py))}
-    Ixt = {}
-    for t in range(len(saved_hash[0])):
-        Ixt[t] = 0
-        for xid in range(len(x_test)):
-            for vvv in ptx[(t, xid)]:
-                pxpt = px[xid]*pt[t][vvv]
-                pppp = ptx[(t, xid)][vvv]
-                if pxpt > 1:
-                    print("WTF!!!")
-                if pppp > 1:
-                    print("WTFFF!!!")
-                add = pppp*math.log2(pppp / pxpt)
-                Ixt[t] += add
-
-    print(Ixt)
     return
 
 
@@ -128,6 +119,35 @@ class SaveLayers(keras.callbacks.Callback):
 
     def get_saved_layers(self):
         return self.saved_layers
+
+
+def get_parameters():
+    parser = argparse.ArgumentParser()
+    parameters_data(parser)
+    network_parameters(parser)
+
+    parser.add_argument('--dest',
+                        dest='dest', default="output",
+                        help="destination folder for output files")
+
+    parser.add_argument('--saved_epochs', '-se',
+                        dest='no_saved_epochs', default=100, type=int,
+                        help="no of epochs to consider when calculating mutual information")
+
+    args = parser.parse_args()
+
+    return args
+
+
+def filename(args):
+    name = "ts-" + "{0:.0%}".format(args.train_size) + ","
+    name += "e-" + str(args.epochs) + ","
+    name += "es-" + str(args.no_saved_epochs) + "_"
+    name += "_" + args.data_set + ","
+    name += "_" + args.activation
+    name += "bs-" + str(args.batch_size) + ","
+    name += "ns-" + str(args.shape)
+    return name
 
 
 print(__name__)

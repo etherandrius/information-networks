@@ -42,7 +42,7 @@ def __run(px_and_data):
 
 
 def __conditional_entropy(data_y, data_x):
-    # H(Y|X), assumes every x is unique
+    # H(Y|X), assumes every x is unique or does it ?????????
     p_x, x_to_y = get_probabilities(data_x)
     px_and_data = [(px, data_y[x_to_y == ix]) for ix, px in enumerate(p_x)]
     out = multiprocessing.Pool().map(__run, px_and_data)
