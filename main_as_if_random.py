@@ -46,7 +46,7 @@ def main():
 
     print("data_t")
     # saved data where every number is binned
-    saved_bin = [[bin_array(layer, bins=30, low=layer.min(), high=layer.max()) for layer in epoch] for epoch in saved]
+    saved_bin = [[bin_array(layer, bins=args.bins, low=layer.min(), high=layer.max()) for layer in epoch] for epoch in saved]
     # saved data where every number is hashed
     saved_hash = [[hash_data(layer) for layer in epoch] for epoch in saved_bin]
 
@@ -125,6 +125,10 @@ def get_parameters():
     parser = argparse.ArgumentParser()
     parameters_data(parser)
     network_parameters(parser)
+
+    parser.add_argument('--bins', '-b',
+                        dest='bins', default=30, type=int,
+                        help="select the number of bins to use for bnning defaults to 30")
 
     parser.add_argument('--dest',
                         dest='dest', default="output",
