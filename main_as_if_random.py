@@ -142,9 +142,9 @@ def get_parameters():
 def filename(args):
     name = "ts-" + "{0:.0%}".format(args.train_size) + ","
     name += "e-" + str(args.epochs) + ","
-    name += "es-" + str(args.no_saved_epochs) + "_"
+    name += "se-" + str(args.no_saved_epochs) + ","
     name += "_" + args.data_set + ","
-    name += "_" + args.activation
+    name += "_" + args.activation + ","
     name += "bs-" + str(args.batch_size) + ","
     name += "ns-" + str(args.shape)
     return name
