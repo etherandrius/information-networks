@@ -65,7 +65,7 @@ class InformationProcessorSimple(InformationProcessor):
         # this line just unpacks the map so it's easy to feed into plot_main
         mi = list(zip(*map(lambda el: (el[0], *el[1]), self.mi.items())))
         epochs, i_x_t, i_y_t, i_t_t = mi
-        plot_main(i_x_t, i_y_t, path, show)
+        plot_main(i_x_t, i_y_t, epoch=max(epochs), filename=path, show=show)
 
     def calculate_information(self, activation, epoch):
         if self.__skip(epoch):
@@ -102,7 +102,7 @@ class InformationProcessorDeltaApprox(InformationProcessor):
         # this line just unpacks the map so it's easy to feed into plot_main
         mi = list(zip(*map(lambda el: (el[0], *el[1]), self.mi.items())))
         epochs, i_x_t, i_y_t, i_t_t = mi
-        plot_main(i_x_t, i_y_t, path, show)
+        plot_main(i_x_t, i_y_t, epoch=max(epochs), filename=path, show=show)
 
     def calculate_information(self, activation, epoch):
         if epoch % self.__skip != 0:
@@ -161,7 +161,7 @@ class InformationProcessorDeltaExact(InformationProcessor):
         # this line just unpacks the map so it's easy to feed into plot_main
         mi = list(zip(*map(lambda el: (el[0], *el[1]), self.mi.items())))
         epochs, i_x_t, i_y_t, i_t_t = mi
-        plot_main(i_x_t, i_y_t, path, show)
+        plot_main(i_x_t, i_y_t, epoch=max(epochs), filename=path, show=show)
 
     def calculate_information(self, activation, epoch):
         activation = activation()

@@ -1,3 +1,4 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.animation as anim
 import numpy as np
@@ -6,10 +7,12 @@ from tqdm import tqdm
 from utils import pairwise
 
 
-def plot_main(data_x, data_y, filename=None, show=False):
+def plot_main(data_x, data_y, epoch=-1, filename=None, show=False):
     print("Producing information plane image")
     cmap = plt.get_cmap('gnuplot')
+    fig = plt.figure()
     colors = [cmap(i) for i in np.linspace(0, 1, len(data_x))]
+    ax = fig.add_axes([0.12, 0.12, 0.68, 0.78])
     for ix in tqdm(range(len(data_x))):
         for e in pairwise(zip(data_x[ix], data_y[ix])):
             (x1, y1), (x2, y2) = e
@@ -17,10 +20,13 @@ def plot_main(data_x, data_y, filename=None, show=False):
             point_size = 300
             plt.scatter(x1, y1, s=point_size, color=colors[ix], zorder=ix)
             plt.scatter(x2, y2, s=point_size, color=colors[ix], zorder=ix)
-
     plt.xlabel('I(X,T)')
     plt.ylabel('I(Y,T)')
 
+    if epoch > 0:
+        cbax = fig.add_axes([0.85, 0.12, 0.04, 0.78])
+        normalize = mpl.colors.Normalize(vmin=0, vmax=epoch)
+        mpl.colorbar.ColorbarBase(cbax, cmap=cmap, norm=normalize, orientation='vertical')
     if filename is not None:
         print("Saving image to file : ", filename)
         start = time.time()
