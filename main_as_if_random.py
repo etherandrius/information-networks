@@ -150,6 +150,7 @@ def filename(args):
     name += "_" + args.activation + ","
     name += "bs-" + str(args.batch_size) + ","
     name += "ns-" + str(args.shape)
+    name += "_as_if_random"
     return name
 
 
