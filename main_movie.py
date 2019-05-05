@@ -3,6 +3,14 @@ import argparse
 import _pickle
 
 
+def output(args):
+    if args.output is not None:
+        return args.output
+    out = args.input.split('/')[-1].split('.')[0]
+    out = out[:-7] if out.endswith('_pickle') else out
+    return "output/movies/" + out + ".mp4"
+
+
 def main():
     args = movie_parameters()
     # data -> epoch * (i_x_t, i_y_t, i_t_t)
@@ -15,7 +23,7 @@ def movie_parameters():
     parser.add_argument('input',
                         help='input pickle data file')
 
-    parser.add_argument('output',
+    parser.add_argument('--output', dest='output', default=None,
                         help='output movie file')
 
     parser.add_argument('--movie_length',
