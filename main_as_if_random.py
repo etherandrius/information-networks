@@ -37,23 +37,17 @@ def main():
               validation_data=(x_test, y_test),
               verbose=1)
 
-    saved = save_layers_callback.saved_layers
-
     def compute_single(saved, dist):
-
-        print("data_x")
         x_test_hash = hash_data(x_test)
         data_x = x_test_hash
         for _ in range(dist - 1):
             data_x = np.concatenate((data_x, x_test_hash))
 
-        print("data_y")
         y_test_hash = hash_data(y_test)
         data_y = y_test_hash
         for _ in range(dist - 1):
             data_y = np.concatenate((data_y, y_test_hash))
 
-        print("data_t")
         # saved data where every number is binned
         saved_bin = [[bin_array(layer, bins=args.bins, low=layer.min(), high=layer.max()) for layer in epoch] for epoch in saved]
         # saved data where every number is hashed
@@ -67,7 +61,6 @@ def main():
                 data_t[t] = np.concatenate([data_t[t], saved_hash[epoch][t]])
         data_t = list(data_t.values())
 
-        print("entropy")
         h_t = np.array([entropy_of_data(t) for t in data_t])
         h_t_x = np.array([__conditional_entropy(t, data_x) for t in data_t])
         h_t_y = np.array([__conditional_entropy(t, data_y) for t in data_t])
@@ -77,16 +70,21 @@ def main():
 
         return i_x_t, i_y_t
 
+    saved = save_layers_callback.saved_layers
     IXT, IYT = [], []
+    pickle = {}
     for s, r in zip(saved, epoch_list):
+        print("computing information for layers {}".format(r), end="")
         start, end = r
         dist = end - start
         ixt, iyt = compute_single(s, dist)
+        print("  {} {}".format(ixt, iyt))
+        pickle[start] = (ixt, iyt, [])
         IXT.append(ixt)
         IYT.append(iyt)
 
-    #path = args.dest + "/data/as_if_random/" + filename(args)
-    #_pickle.dump((i_x_t, i_y_t), open(path, 'wb'))
+    path = args.dest + "/data/as_if_random/" + filename(args)
+    _pickle.dump(pickle, open(path, 'wb'))
     path = args.dest + "/images/as_if_random/" + filename(args)
     plot_main(IXT, IYT, filename=path, show=True)
 
