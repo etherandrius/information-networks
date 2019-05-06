@@ -132,19 +132,20 @@ class SaveLayers(keras.callbacks.Callback):
     def on_batch_end(self, batch, logs=None):
         self.__batch += 1
         temp = self.__temp
-        ix = self.ix
         el = self.epoch_list
 
-        if ix >= len(self.epoch_list):
+        if self.ix >= len(self.epoch_list):
             return
-        if (el[ix][0] <= self.__batch) and (self.__batch < el[ix][1]):
-            out = self.__functor([self.__x_test, 0.])
-            temp.append(out)
-        if self.__batch >= el[ix][1]:
+        if self.__batch >= el[self.ix][1]:
             self.ix += 1
             if len(temp) > 0:
                 self.saved_layers.append(temp)
                 self.__temp = []
+        if self.ix >= len(self.epoch_list):
+            return
+        if (el[self.ix][0] <= self.__batch) and (self.__batch < el[self.ix][1]):
+            out = self.__functor([self.__x_test, 0.])
+            temp.append(out)
 
     def get_saved_layers(self):
         return self.saved_layers
@@ -203,8 +204,10 @@ def filename(args):
     name += "_" + args.activation + ","
     name += "bs-" + str(args.batch_size) + ","
     name += "ns-" + str(args.shape)
-    name += "el-" + str(args.epoch_list) + ","
+    name += "el-" + str(args.epoch_list).replace(" ", "").replace("(", "").replace(")", "") + ","
     name += "_as_if_random"
+    if len(name) >= 255:
+        name = name[:250] + "..."
     return name
 
 
