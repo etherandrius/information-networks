@@ -224,7 +224,7 @@ class InformationProcessorDeltaExact(InformationProcessor):
 class InformationProcessorUnion(InformationProcessor):
     def __init__(self, ips):
         assert (len(ips) > 0)
-        super().__init__(None)
+        super().__init__()
         self.ips = ips
 
     def calculate_information(self, activation, epoch):
