@@ -270,6 +270,5 @@ def _dist(i_a, i_b):
     d = max(
         max(abs(i_a[0] - i_b[0])),
         max(abs(i_a[1] - i_b[1])),
-        max(abs(i_a[2] - i_b[2])),
     )
     return d
